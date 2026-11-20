@@ -15,7 +15,7 @@
 <title>JJL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;500;600&family=Courier+Prime:wght@400;700&family=Kalam:wght@700&family=Special+Elite&family=Rubik:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;500;600&family=Courier+Prime:wght@400;700&family=Architects+Daughter&family=Special+Elite&display=swap">
 <style>
 /* Layout: the rule owns the screen; a slim control deck sits under it (hidden in Expert). */
 :root{
@@ -154,24 +154,25 @@ body.upright #learnUI{flex-wrap:wrap}
 body.upright #stepText{flex-basis:100%;max-height:7.5em;font-size:15px}
 body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
 /* ---------- intro: mid-century drafting table ---------- */
-.intro{position:fixed;inset:0;z-index:40;display:grid;place-items:center;overflow:hidden;background:#24332a;color:#f4ecd8;
+.intro{position:fixed;inset:0;z-index:40;display:grid;grid-template-rows:1fr 2fr;justify-items:center;overflow:hidden;background:#24332a;color:#f4ecd8;
   padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(16px,env(safe-area-inset-left,0px));
   transition:opacity .5s ease,visibility .5s;-webkit-user-select:none;user-select:none}
 .intro.gone{opacity:0;visibility:hidden}
 .intro-bg{position:absolute;inset:-3%;background:#120c08 url(splash-land.jpg) center 62%/cover no-repeat;animation:drift 26s ease-in-out infinite alternate}
 @media (orientation:portrait){.intro-bg{background-image:url(splash-port.jpg);background-position:center 70%}}
 @keyframes drift{from{transform:scale(1.045) translate(-.4%,.3%)}to{transform:scale(1) translate(.4%,-.3%)}}
-.intro-in{position:relative;display:grid;gap:12px;justify-items:center;text-align:center;max-width:470px;padding:34px 34px 28px;
-  background:radial-gradient(closest-side,rgba(10,9,8,.86),rgba(10,9,8,.6) 62%,rgba(10,9,8,0))}
-.i-title{margin:0;font-family:"Kalam","Architects Daughter","Marker Felt",cursive;font-weight:700;font-size:clamp(44px,min(13.5vw,16vh),80px);line-height:.95;letter-spacing:.01em;color:#f3ead2;text-shadow:0 2px 14px rgba(0,0,0,.45);white-space:nowrap}
+/* top third: title; lower two-thirds: actions; label tucked in a bottom corner */
+.i-head,.i-acts{position:relative;display:grid;justify-items:center;text-align:center;padding:22px 40px;background:radial-gradient(closest-side,rgba(10,9,8,.82),rgba(10,9,8,.55) 60%,rgba(10,9,8,0))}
+.i-head{align-self:end;gap:10px;padding-bottom:6px}
+.i-acts{align-self:center;gap:12px}
+.i-title{margin:0;font-family:"Courier Prime","Courier New",Courier,monospace;font-weight:700;font-size:clamp(38px,min(11.5vw,14vh),70px);line-height:1;letter-spacing:0;color:#f3ead2;text-shadow:0 2px 14px rgba(0,0,0,.45);white-space:nowrap}
 .i-title .w{display:inline-block;opacity:0;transform:translateY(18px);animation:rise .6s cubic-bezier(.2,.8,.2,1) forwards}
-.i-title .amp{color:#e2bd68}
 @keyframes rise{to{opacity:1;transform:none}}
-.i-sub{margin:0;font-family:"Special Elite","Courier Prime","Courier New",monospace;font-weight:400;font-size:clamp(12.5px,3.5vw,17px);letter-spacing:.03em;white-space:nowrap;color:#d8cba8;opacity:0;animation:rise .6s .55s forwards}
+.i-sub{margin:0;font-family:"Architects Daughter","Kalam",cursive;font-weight:400;font-size:clamp(15px,4.2vw,21px);letter-spacing:.03em;white-space:nowrap;color:#d8cba8;opacity:0;animation:rise .6s .55s forwards}
 /* embossed label tape: slightly crooked, off-center, cut a little long */
-.dymo-wrap{margin:2px 0 6px;filter:drop-shadow(1px 3px 2px rgba(0,0,0,.65));transform:translateX(-11px) rotate(-1.4deg);opacity:0;animation:stick .45s .95s cubic-bezier(.3,1.4,.5,1) forwards}
-@keyframes stick{from{opacity:0;transform:translateX(-11px) rotate(-5deg) scale(1.15)}to{opacity:1;transform:translateX(-11px) rotate(-1.4deg)}}
-.dymo{display:block;width:min(250px,58vw);height:auto;overflow:visible}
+.dymo-wrap{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));filter:drop-shadow(1px 3px 2px rgba(0,0,0,.7));transform:rotate(-1.4deg);opacity:0;animation:stick .45s 1.7s cubic-bezier(.3,1.4,.5,1) forwards}
+@keyframes stick{from{opacity:0;transform:rotate(-5deg) scale(1.15)}to{opacity:1;transform:rotate(-1.4deg)}}
+.dymo{display:block;width:min(190px,46vw);height:auto;overflow:visible}
 /* olive-drab placard button: corner rivets */
 .i-start{position:relative;margin-top:4px;font-family:"Special Elite","Courier Prime","Courier New",monospace;font-weight:400;font-size:21px;letter-spacing:.1em;text-transform:uppercase;height:auto;padding:14px 40px;
   border:2px solid #2b3012;border-radius:6px;color:#efe6c8;
@@ -185,8 +186,7 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
 @media (orientation:landscape){.i-turn{display:none}}
 .a2hs-link{height:auto;font-family:"Special Elite","Courier Prime","Courier New",monospace;color:#f1e6c8;background:none;border:0;text-decoration:underline;text-underline-offset:4px;font-weight:600;font-size:15px;padding:6px;opacity:0;animation:rise .5s 1.55s forwards}
 .i-ver{margin:0;font-family:"Special Elite","Courier Prime","Courier New",monospace;font-size:12px;color:#9aa6a6;opacity:0;animation:rise .5s 1.7s forwards}
-@media (max-height:460px){.intro-in{gap:7px;padding:14px 34px 12px}.i-start{padding:10px 34px;font-size:18px}.i-ver{display:none}}
-@media (orientation:landscape){.intro{place-items:start center}}
+@media (max-height:460px){.i-head{padding-top:10px}.i-acts{gap:8px;padding:12px 34px}.i-start{padding:10px 34px;font-size:18px}.i-ver{display:none}.dymo{width:160px}}
 @media (prefers-reduced-motion:reduce){.intro-bg{animation:none}.i-title .w,.i-sub,.dymo-wrap,.i-start,.i-turn,.a2hs-link,.i-ver{animation:none;opacity:1}.i-title .w{transform:none}}
 
 /* ---------- Add to Home Screen guide (pattern from the football app) ---------- */
@@ -204,9 +204,9 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
 #a2hs .scr{position:relative;width:100%;height:100%;border-radius:23px;overflow:hidden;background:#24332a;color:#111;font:11px/1.25 -apple-system,system-ui,sans-serif}
 #a2hs .ly{position:absolute;inset:0;transition:opacity .35s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
 #a2hs .page{background:#120c08 url(splash-port.jpg) center 30%/cover}
-#a2hs .mini-t{position:absolute;left:0;right:0;top:110px;text-align:center;color:#f3ead2;font:700 26px/1 "Kalam",cursive;text-shadow:0 1px 6px #000}
-#a2hs .mini-t small{display:block;margin-top:6px;font:11px "Special Elite","Courier Prime","Courier New",monospace;color:#dccfb2}
-#a2hs .mini-t i{display:inline-block;margin-top:10px;background:#5e1222;color:#ecc9d0;font:700 11px "Rubik",sans-serif;letter-spacing:.08em;font-style:normal;padding:3px 14px 3px 6px;transform:rotate(-2deg)}
+#a2hs .mini-t{position:absolute;left:0;right:0;top:110px;text-align:center;color:#f3ead2;font:700 22px/1 "Courier Prime",monospace;text-shadow:0 1px 6px #000}
+#a2hs .mini-t small{display:block;margin-top:6px;font:12px "Architects Daughter",cursive;color:#dccfb2}
+#a2hs .mini-t i{display:inline-block;margin-top:10px;background:#5e1222;color:#ecc9d0;font:700 11px "Courier Prime",monospace;letter-spacing:.12em;font-style:normal;padding:3px 14px 3px 6px;transform:rotate(-2deg)}
 #a2hs .ios-bar{position:absolute;left:0;right:0;bottom:0;height:64px;background:rgba(247,247,250,.98);border-top:1px solid #d9dbe0}
 #a2hs .ios-bar .url{margin:6px 10px 0;height:20px;border-radius:7px;background:#e6e7eb;display:grid;place-items:center;color:#555;font-size:9px}
 #a2hs .ios-bar .icons{display:flex;justify-content:space-around;align-items:center;height:34px;color:#1a73e8}
@@ -257,10 +257,17 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
 <body data-mode="learn">
 <div id="intro" class="intro" aria-label="K&amp;E 4081-3 · J.J.L.">
   <div class="intro-bg" aria-hidden="true"></div>
-  <div class="intro-in">
-    <h1 class="i-title"><span class="w" style="animation-delay:.12s">K<span class="amp">&amp;</span>E</span> <span class="w" style="animation-delay:.3s">4081-3</span></h1>
+  <div class="i-head">
+    <h1 class="i-title"><span class="w" style="animation-delay:.12s">K&amp;E</span> <span class="w" style="animation-delay:.3s">4081-3</span></h1>
     <p class="i-sub">c. 1952 · Log Log Duplex Decitrig</p>
-    <div class="dymo-wrap"><svg class="dymo" viewBox="-6 -6 242 62" width="242" height="62" role="img" aria-label="J.J.L.">
+  </div>
+  <div class="i-acts">
+    <button class="i-start" id="iStart">Open the rule</button>
+    <p class="i-turn">Best held sideways</p>
+    <button class="a2hs-link" id="iA2hs" hidden>Add to Home Screen</button>
+    <p class="i-ver">v1.0</p>
+  </div>
+  <div class="dymo-wrap"><svg class="dymo" viewBox="-6 -6 242 62" width="242" height="62" role="img" aria-label="J.J.L.">
   <defs>
     <linearGradient id="dyTape" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#4f0d1b"/><stop offset=".06" stop-color="#7d1f33"/><stop offset=".16" stop-color="#6a1426"/><stop offset=".9" stop-color="#5c1020"/><stop offset="1" stop-color="#3a0712"/>
@@ -280,11 +287,6 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
     <path d="M67.0,13.5 V31.3 Q67.0,34.5 63.8,34.5 H59.7 Q56.5,34.5 56.5,31.3 V28.5 M109.0,13.5 V31.3 Q109.0,34.5 105.8,34.5 H101.7 Q98.5,34.5 98.5,31.3 V28.5 M141.5,13.5 V34.5 H152.5" transform="translate(-0.45,-0.5)" fill="none" stroke="#ffffff" stroke-width="1.0080000000000002" stroke-opacity="0.55" stroke-linejoin="round" stroke-linecap="round"/><circle cx="83.55" cy="32.9" r="0.90" fill="#ffffff" fill-opacity="0.55"/><circle cx="125.55" cy="32.9" r="0.90" fill="#ffffff" fill-opacity="0.55"/><circle cx="167.55" cy="32.9" r="0.90" fill="#ffffff" fill-opacity="0.55"/>
   </g>
 </svg></div>
-    <button class="i-start" id="iStart">Open the rule</button>
-    <p class="i-turn">Best held sideways</p>
-    <button class="a2hs-link" id="iA2hs" hidden>Add to Home Screen</button>
-    <p class="i-ver">v1.0</p>
-  </div>
 </div>
 <div id="app">
   <div id="stage">
