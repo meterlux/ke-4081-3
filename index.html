@@ -131,17 +131,21 @@ table.res th{color:var(--muted);font-weight:500}
 body[data-mode="expert"] #panel{display:none}
 body:not([data-mode="expert"]) #xbtns{display:none}
 
-/* Always landscape: when the phone is upright (or rotation-locked), turn the whole app sideways.
+/* Orientation. The app follows how the phone is held:
+   · screen landscape → normal sideways layout
+   · screen portrait and phone held upright → "upright" close-up view (body.upright)
+   · screen portrait but phone held sideways (rotation lock on; detected with the motion sensor)
+     → the whole app turns itself sideways, either way round (body.rot-cw / body.rot-ccw).
    Safe-area insets are re-mapped to the rotated edges. */
-@media (orientation:portrait){
-  body:not(.upright){--sl:env(safe-area-inset-top,0px);--sr:env(safe-area-inset-bottom,0px);--st:0px;--sb:env(safe-area-inset-left,0px)}
-  body:not(.upright) #app{inset:auto;top:0;left:0;width:var(--vh,100vh);height:var(--vw,100vw);transform-origin:0 0;transform:translateX(var(--vw,100vw)) rotate(90deg)}
-}
-#orientBtn{display:none}
-@media (orientation:portrait){#orientBtn{display:inline-grid}}
-body.upright #orientBtn svg{transform:rotate(90deg)}
+body.rot-cw{--sl:env(safe-area-inset-top,0px);--sr:env(safe-area-inset-bottom,0px);--st:0px;--sb:env(safe-area-inset-left,0px)}
+body.rot-cw #app{inset:auto;top:0;left:0;width:var(--vh,100vh);height:var(--vw,100vw);transform-origin:0 0;transform:translateX(var(--vw,100vw)) rotate(90deg)}
+body.rot-ccw{--sl:env(safe-area-inset-bottom,0px);--sr:env(safe-area-inset-top,0px);--st:0px;--sb:env(safe-area-inset-right,0px)}
+body.rot-ccw #app{inset:auto;top:0;left:0;width:var(--vh,100vh);height:var(--vw,100vw);transform-origin:0 0;transform:translateY(var(--vh,100vh)) rotate(-90deg)}
 #xbtns svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #xbtns button.lit,#xbtns button:active{opacity:1;box-shadow:0 0 18px rgba(243,196,99,.55)}
+.orient-seg{display:flex;background:#0a0c0e;border-radius:10px;padding:2px;flex:none}
+.orient-seg button{background:transparent;border:0;height:32px;padding:0 10px;color:var(--muted);font-weight:500}
+.orient-seg button[aria-pressed="true"]{background:var(--raise2);color:var(--brass)}
 /* upright view: narrow panel */
 body.upright #headRow{flex-wrap:wrap}
 body.upright #ctx{order:5;flex-basis:100%}
@@ -263,7 +267,6 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
   </div>
   <div class="i-acts">
     <button class="i-start" id="iStart">Open the rule</button>
-    <p class="i-turn">Best held sideways</p>
     <button class="a2hs-link" id="iA2hs" hidden>Add to Home Screen</button>
     <p class="i-ver">v1.0</p>
   </div>
@@ -317,7 +320,6 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
         </div>
       </div>
       <button id="flipBtn" aria-label="Flip the rule over"><span class="flipLbl">⟲<span id="flipTxt"> Show back</span></span></button>
-      <button id="orientBtn" class="icon" aria-label="Switch between sideways and upright view"><svg class="i" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10.5 18.5h3"/></svg></button>
       <button id="gearBtn" class="icon" aria-label="Settings"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
     <div class="row" id="learnUI">
@@ -485,7 +487,7 @@ const ZOOM_DEF={learn:1.3,practice:1.3,test:1.3,expert:2.4};
 const st={mode:'learn',face:'front',xc:0.5,s:0};
 let zoom={...ZOOM_DEF};
 const ZOOMU_DEF={learn:.8,practice:.8,test:.8,expert:.95};let zoomU={...ZOOMU_DEF};
-const settings={readLearn:true,readPractice:false,names:true,hair:'black',flickFlip:true,upright:false,hint0:true};
+const settings={readLearn:true,readPractice:false,names:true,hair:'black',flickFlip:true,orient:'auto',hint0:true};
 const prog={lesson:0,step:0,done:{}};
 let best={}; let cats=['mul','div'];
 function load(){
@@ -864,9 +866,11 @@ function updateFlipLbl(){$('#flipTxt').textContent=' Show '+(st.face==='front'?'
    ===================================================================== */
 const ptrs=new Map();let drag=null,pinch=null;
 const isUp=()=>document.body.classList.contains('upright');
-const rotated=()=>matchMedia('(orientation: portrait)').matches&&!isUp();
+const rotated=()=>document.body.classList.contains('rot-cw')||document.body.classList.contains('rot-ccw');
 function local(e){
-  if(rotated()){const sg=$('#stage');return {x:e.clientY-sg.offsetLeft,y:(innerWidth-e.clientX)-sg.offsetTop};}
+  const sg=$('#stage');
+  if(document.body.classList.contains('rot-cw'))return {x:e.clientY-sg.offsetLeft,y:(innerWidth-e.clientX)-sg.offsetTop};
+  if(document.body.classList.contains('rot-ccw'))return {x:(innerHeight-e.clientY)-sg.offsetLeft,y:e.clientX-sg.offsetTop};
   const r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};
 }
 function gain(v,key){
@@ -965,7 +969,7 @@ const LESSONS=[
    <p>Your rule’s serial number, 601428, fits K&amp;E’s numbering for about 1951 or about 1962 (the counter rolled over in 1955). Its back face labels the small-angle scale <b>ST</b>; K&amp;E renamed it SRT in 1956, which points to the early 1950s. See Settings → About this rule for how to confirm.</p>`},
   {t:'Body, slide and cursor',st:{xc:.36,s:.12},
    b:'The top and bottom strips are the <b>body</b>. The middle strip is the <b>slide</b>. The glass window is the <b>cursor</b>; here it stays centered and the rule moves under it.',
-   m:`<ul><li><b>Drag either fixed strip</b> (top or bottom) sideways to move the whole rule under the cursor. That is the same as sliding the cursor on a real rule.</li><li><b>Drag the middle strip</b> sideways to move the slide, even under the glass.</li><li><b>Speed matters:</b> move slowly for fine adjustment (the rule moves about a third as far as your finger); move faster and it speeds up so one stroke crosses the rule.</li><li><b>Swipe up or down</b> to roll the rule over to its other face.</li><li><b>Pinch</b> to zoom in for fine readings, out to see more of the rule.</li><li><b>Tap a scale name</b> in the left margin for what it does.</li><li><b>Hold the phone upright</b> and tap the phone button for a big, close-up view of the rule.</li></ul>`},
+   m:`<ul><li><b>Drag either fixed strip</b> (top or bottom) sideways to move the whole rule under the cursor. That is the same as sliding the cursor on a real rule.</li><li><b>Drag the middle strip</b> sideways to move the slide, even under the glass.</li><li><b>Speed matters:</b> move slowly for fine adjustment (the rule moves about a third as far as your finger); move faster and it speeds up so one stroke crosses the rule.</li><li><b>Swipe up or down</b> to roll the rule over to its other face.</li><li><b>Pinch</b> to zoom in for fine readings, out to see more of the rule.</li><li><b>Tap a scale name</b> in the left margin for what it does.</li><li><b>Turn the phone upright</b> for a big, close-up view of the rule; turn it back sideways to see more. It follows the phone even with rotation lock on.</li></ul>`},
   {t:'The indexes',st:{xc:.02,s:0},hl:['C','D'],mk:[['C',1,'left index'],['D',1]],
    b:'The <b>1</b> at each end of C and D is an <b>index</b>. This is the left index. Almost every operation starts by putting an index somewhere.'},
   {t:'The right index',st:{xc:.98,s:0},hl:['C','D'],mk:[['C',10,'right index'],['D',10]],
@@ -1383,9 +1387,53 @@ $$('.seg [data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
 $('#xMenu').onclick=()=>setMode('learn');
 const doFlip=()=>{cancelWalk();flipTo(st.face==='front'?'back':'front').then(()=>{save();checkTry();});};
 $('#flipBtn').onclick=doFlip;
-function applyOrient(){document.body.classList.toggle('upright',!!settings.upright&&innerHeight>innerWidth);requestAnimationFrame(measure);}
-$('#orientBtn').onclick=()=>{settings.upright=!settings.upright;applyOrient();save();};
+/* ---- orientation: follow how the phone is held ----
+   Rotation unlocked: iOS turns the page, so the screen shape tells us.
+   Rotation locked: the screen always reports portrait, so read gravity from the motion
+   sensor to see whether the phone is actually held sideways, and which way round. */
+let held=null,heldCand=null,heldT=0;                 // 'up' | 'cw' | 'ccw' (null = unknown)
+const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function onMotion(e){
+  const a=e.accelerationIncludingGravity;if(!a||a.x==null||a.y==null)return;
+  const k=IOS?-1:1, gx=a.x*k, gy=a.y*k;              // normalised: phone upright → gy ≈ +9.8
+  let c=null;
+  if(Math.abs(gx)>5&&Math.abs(gx)>1.5*Math.abs(gy))c=gx>0?'cw':'ccw';
+  else if(Math.abs(gy)>5&&Math.abs(gy)>1.5*Math.abs(gx))c='up';
+  if(!c)return;                                       // flat on the desk or mid-turn: keep what we have
+  const now=performance.now();
+  if(c!==heldCand){heldCand=c;heldT=now;return;}
+  if(c!==held&&now-heldT>280){held=c;applyOrient();}
+}
+let motionOn=false;
+function startMotion(){
+  if(motionOn)return;motionOn=true;
+  try{window.addEventListener('devicemotion',onMotion);}catch(e){}
+}
+function askMotion(){                                 // must run inside a tap on iOS
+  try{
+    const DM=window.DeviceMotionEvent;
+    if(DM&&typeof DM.requestPermission==='function'){DM.requestPermission().then(r=>{if(r==='granted')startMotion();}).catch(()=>{});}
+    else startMotion();
+  }catch(e){}
+}
+window.__askMotion=askMotion;
+function applyOrient(){
+  const portrait=innerHeight>innerWidth,b=document.body.classList,m=settings.orient||'auto';
+  let up=false,rot='';
+  if(portrait){
+    if(m==='upright')up=true;
+    else if(m==='sideways')rot=held==='ccw'?'rot-ccw':'rot-cw';
+    else if(held==='cw'||held==='ccw')rot='rot-'+held;
+    else up=true;
+  }
+  const was=b.contains('upright')+'|'+b.contains('rot-cw')+'|'+b.contains('rot-ccw');
+  b.toggle('upright',up);b.toggle('rot-cw',rot==='rot-cw');b.toggle('rot-ccw',rot==='rot-ccw');
+  if(was!==b.contains('upright')+'|'+b.contains('rot-cw')+'|'+b.contains('rot-ccw')){hideBubble&&hideBubble();}
+  requestAnimationFrame(measure);
+}
 window.addEventListener('resize',()=>applyOrient());
+if(!(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'))startMotion();   // Android etc.: no prompt needed
+document.addEventListener('pointerdown',function once(){askMotion();document.removeEventListener('pointerdown',once,true);},true);
 $('#nextBtn').onclick=nextStep;$('#prevBtn').onclick=prevStep;
 $('#moreBtn').onclick=()=>{if(bubbleKind==='more'){hideBubble();return;}const s=stepState();if(s.m)showBubble(s.t,s.m,'more');};
 $('#showBtn').onclick=()=>{lessonSol();showMe();};
@@ -1429,11 +1477,11 @@ function openSettings(){
    <div class="set"><div><div>Scale names in margin</div><div class="d">Keeps names visible when the rule’s ends are off screen</div></div>${tog('sN',settings.names)}</div>
    <div class="set"><div><div>Red hairline</div><div class="d">Easier to see than the original black</div></div>${tog('sH',settings.hair==='red')}</div>
    <div class="set"><div><div>Swipe to flip</div><div class="d">Swipe up or down on the rule to roll it over</div></div>${tog('sM',settings.flickFlip)}</div>
-   <div class="set"><div><div>Upright view</div><div class="d">When the phone is vertical, show the rule large and cropped instead of turning the app sideways</div></div>${tog('sU',settings.upright)}</div>
+   <div class="set"><div><div>Screen</div><div class="d">Automatic follows how you hold the phone, even with rotation lock on</div></div><div class="orient-seg" id="sO">${[['auto','Automatic'],['sideways','Sideways'],['upright','Upright']].map(([k,l])=>`<button data-o="${k}" aria-pressed="${(settings.orient||'auto')===k}">${l}</button>`).join('')}</div></div>
    <div class="btnrow"><button id="sReset">Center the rule</button><button id="sZoom">Reset zoom</button><button id="sAbout">About this rule</button></div>`,
    el=>{
      const bind=(id,fn)=>{const b=el.querySelector('#'+id);b.onclick=()=>{const v=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(v));fn(v);save();invalidate();};};
-     bind('sR',v=>settings.readLearn=v);bind('sRP',v=>settings.readPractice=v);bind('sN',v=>settings.names=v);bind('sH',v=>settings.hair=v?'red':'black');bind('sM',v=>settings.flickFlip=v);bind('sU',v=>{settings.upright=v;applyOrient();});
+     bind('sR',v=>settings.readLearn=v);bind('sRP',v=>settings.readPractice=v);bind('sN',v=>settings.names=v);bind('sH',v=>settings.hair=v?'red':'black');bind('sM',v=>settings.flickFlip=v);el.querySelectorAll('#sO [data-o]').forEach(b=>b.onclick=()=>{settings.orient=b.dataset.o;el.querySelectorAll('#sO [data-o]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));applyOrient();save();});
      el.querySelector('#sReset').onclick=()=>{closeSheet();goTo({xc:.5,s:0});};
      el.querySelector('#sZoom').onclick=()=>{zoom={...ZOOM_DEF};save();invalidate();closeSheet();};
      el.querySelector('#sAbout').onclick=()=>openSheet('About this rule',ABOUT);
@@ -1444,7 +1492,7 @@ $('#gearBtn').onclick=openSettings;
 /* =====================================================================
    BOOT
    ===================================================================== */
-load();if(settings.flickFlip===undefined)settings.flickFlip=true;applyOrient();buildKeypad();makeGrain();makeBrush();loadTex();updateFlipLbl();
+load();if(settings.flickFlip===undefined)settings.flickFlip=true;if(!settings.orient)settings.orient='auto';delete settings.upright;applyOrient();buildKeypad();makeGrain();makeBrush();loadTex();updateFlipLbl();
 new ResizeObserver(measure).observe($('#stage'));
 window.addEventListener('orientationchange',()=>setTimeout(measure,250));window.addEventListener('resize',measure);
 setMode(st.mode);
@@ -1463,7 +1511,7 @@ const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matc
 const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){return false;}};
 const intro=$('#intro');
 function closeIntro(){intro.classList.add('gone');setTimeout(()=>intro.remove(),600);}
-$('#iStart').onclick=closeIntro;
+$('#iStart').onclick=()=>{try{window.__askMotion&&window.__askMotion();}catch(e){}closeIntro();};
 if(!isStandalone()){$('#iA2hs').hidden=false;$('#iA2hs').onclick=openA2HS;}
 document.addEventListener('keydown',e=>{if(document.body.contains(intro)&&!$('#a2hs')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();closeIntro();}});
 
