@@ -15,7 +15,7 @@
 <title>JJL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;500;600&family=Courier+Prime:wght@400;700&family=Jost:wght@500;600&family=Oswald:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;500;600&family=Courier+Prime:wght@400;700&family=Kalam:wght@700&family=Special+Elite&family=Rubik:wght@700&display=swap">
 <style>
 /* Layout: the rule owns the screen; a slim control deck sits under it (hidden in Expert). */
 :root{
@@ -163,25 +163,17 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
 @keyframes drift{from{transform:scale(1.045) translate(-.4%,.3%)}to{transform:scale(1) translate(.4%,-.3%)}}
 .intro-in{position:relative;display:grid;gap:12px;justify-items:center;text-align:center;max-width:470px;padding:34px 34px 28px;
   background:radial-gradient(closest-side,rgba(10,9,8,.86),rgba(10,9,8,.6) 62%,rgba(10,9,8,0))}
-.i-title{margin:0;font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:clamp(36px,min(11vw,13vh),62px);line-height:1;letter-spacing:.01em;color:#f1e6c8;text-shadow:0 2px 14px rgba(0,0,0,.45);white-space:nowrap}
+.i-title{margin:0;font-family:"Kalam","Architects Daughter","Marker Felt",cursive;font-weight:700;font-size:clamp(44px,min(13.5vw,16vh),80px);line-height:.95;letter-spacing:.01em;color:#f3ead2;text-shadow:0 2px 14px rgba(0,0,0,.45);white-space:nowrap}
 .i-title .w{display:inline-block;opacity:0;transform:translateY(18px);animation:rise .6s cubic-bezier(.2,.8,.2,1) forwards}
-.i-title .amp{font-weight:700;color:#d9b45f}
+.i-title .amp{color:#e2bd68}
 @keyframes rise{to{opacity:1;transform:none}}
-.i-sub{margin:0;font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:clamp(12.5px,3.5vw,17px);letter-spacing:.03em;white-space:nowrap;color:#d8cba8;opacity:0;animation:rise .6s .55s forwards}
+.i-sub{margin:0;font-family:"Special Elite","Courier Prime","Courier New",monospace;font-weight:400;font-size:clamp(12.5px,3.5vw,17px);letter-spacing:.03em;white-space:nowrap;color:#d8cba8;opacity:0;animation:rise .6s .55s forwards}
 /* embossed label tape: slightly crooked, off-center, cut a little long */
-.dymo-wrap{margin:4px 0 6px;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.6));transform:translateX(-17px) rotate(-1.7deg);opacity:0;animation:stick .45s .95s cubic-bezier(.3,1.4,.5,1) forwards}
+.dymo-wrap{margin:2px 0 6px;filter:drop-shadow(1px 3px 2px rgba(0,0,0,.65));transform:translateX(-17px) rotate(-1.7deg);opacity:0;animation:stick .45s .95s cubic-bezier(.3,1.4,.5,1) forwards}
 @keyframes stick{from{opacity:0;transform:translateX(-17px) rotate(-5deg) scale(1.15)}to{opacity:1;transform:translateX(-17px) rotate(-1.7deg)}}
-.dymo{position:relative;display:flex;align-items:center;gap:.3em;padding:7px 44px 7px 13px;
-  background:linear-gradient(180deg,#a02d42 0%,#7e1d30 28%,#6a1628 66%,#540f1f 100%);
-  clip-path:polygon(0 8%,100% 0,99.5% 100%,.6% 92%);
-  font-family:"Oswald","Arial Narrow",sans-serif;font-weight:600;font-size:25px;line-height:1;letter-spacing:.04em;color:#f6e6ea}
-.dymo::before{content:"";position:absolute;inset:0 0 56% 0;background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,0))}
-.dymo::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
-.dymo b{position:relative;font-weight:600;text-shadow:0 1.5px 0 rgba(45,0,12,.6),0 -1px 0 rgba(255,255,255,.4),0 0 2px rgba(255,255,255,.35)}
-.dymo b:nth-child(1){transform:translateY(-.6px)} .dymo b:nth-child(3){transform:translateY(.8px) rotate(-1.6deg)}
-.dymo b:nth-child(5){transform:translateY(-.3px) rotate(1.2deg)} .dymo b:nth-child(even){transform:translateY(1px)}
-/* olive-drab placard button: stenciled face, corner rivets */
-.i-start{position:relative;margin-top:4px;font-family:"Courier Prime","Courier New",monospace;font-weight:700;font-size:20px;letter-spacing:.12em;text-transform:uppercase;height:auto;padding:14px 40px;
+.dymo{display:block;width:min(300px,64vw);height:auto;overflow:visible}
+/* olive-drab placard button: corner rivets */
+.i-start{position:relative;margin-top:4px;font-family:"Special Elite","Courier Prime","Courier New",monospace;font-weight:400;font-size:21px;letter-spacing:.1em;text-transform:uppercase;height:auto;padding:14px 40px;
   border:2px solid #2b3012;border-radius:6px;color:#efe6c8;
   background:radial-gradient(circle at 9px 9px,#9a9d84 2.5px,#3a3f1b 3.2px,transparent 3.6px),radial-gradient(circle at calc(100% - 9px) 9px,#9a9d84 2.5px,#3a3f1b 3.2px,transparent 3.6px),
     radial-gradient(circle at 9px calc(100% - 9px),#9a9d84 2.5px,#3a3f1b 3.2px,transparent 3.6px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#9a9d84 2.5px,#3a3f1b 3.2px,transparent 3.6px),
@@ -189,10 +181,10 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
   box-shadow:inset 0 0 0 3px rgba(239,230,200,.18),inset 0 1px 0 rgba(255,255,255,.18),0 3px 0 #23270e,0 10px 22px rgba(0,0,0,.5);
   text-shadow:0 1px 0 rgba(0,0,0,.45);opacity:0;animation:rise .5s 1.25s forwards}
 .i-start:active{transform:translateY(2px);box-shadow:inset 0 0 0 3px rgba(239,230,200,.18),0 1px 0 #23270e,0 6px 14px rgba(0,0,0,.5)}
-.i-turn{margin:-4px 0 0;font-size:13px;color:#b9c4c9;opacity:0;animation:rise .5s 1.4s forwards}
+.i-turn{margin:-4px 0 0;font-family:"Special Elite","Courier Prime","Courier New",monospace;font-size:13px;color:#b9c4c9;opacity:0;animation:rise .5s 1.4s forwards}
 @media (orientation:landscape){.i-turn{display:none}}
-.a2hs-link{height:auto;font-family:"Courier Prime","Courier New",monospace;color:#f1e6c8;background:none;border:0;text-decoration:underline;text-underline-offset:4px;font-weight:600;font-size:15px;padding:6px;opacity:0;animation:rise .5s 1.55s forwards}
-.i-ver{margin:0;font-family:"Courier Prime",monospace;font-size:12px;color:#9aa6a6;opacity:0;animation:rise .5s 1.7s forwards}
+.a2hs-link{height:auto;font-family:"Special Elite","Courier Prime","Courier New",monospace;color:#f1e6c8;background:none;border:0;text-decoration:underline;text-underline-offset:4px;font-weight:600;font-size:15px;padding:6px;opacity:0;animation:rise .5s 1.55s forwards}
+.i-ver{margin:0;font-family:"Special Elite","Courier Prime","Courier New",monospace;font-size:12px;color:#9aa6a6;opacity:0;animation:rise .5s 1.7s forwards}
 @media (max-height:460px){.intro-in{gap:7px;padding:14px 34px 12px}.i-start{padding:10px 34px;font-size:18px}.i-ver{display:none}}
 @media (orientation:landscape){.intro{place-items:start center}}
 @media (prefers-reduced-motion:reduce){.intro-bg{animation:none}.i-title .w,.i-sub,.dymo-wrap,.i-start,.i-turn,.a2hs-link,.i-ver{animation:none;opacity:1}.i-title .w{transform:none}}
@@ -200,11 +192,11 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
 /* ---------- Add to Home Screen guide (pattern from the football app) ---------- */
 #a2hs{position:fixed;inset:0;z-index:60;background:rgba(8,12,18,.78);display:grid;place-items:center;padding:12px}
 #a2hs .g-card{background:#f3ead6;color:#1e2a35;border-radius:18px;width:min(380px,100%);padding:16px 16px 18px;display:grid;gap:12px;justify-items:center;max-height:calc(100% - 4px);overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5)}
-#a2hs h2{font-family:"Jost",sans-serif;font-weight:600;font-size:22px;margin:0}
+#a2hs h2{font-family:"Special Elite","Courier Prime","Courier New",monospace;font-weight:400;font-size:23px;margin:0}
 #a2hs .g-os{display:flex;background:#e2d6bb;border-radius:10px;padding:2px}
 #a2hs .g-os button{background:transparent;border:0;height:32px;padding:0 16px;color:#4a5560;font-weight:600}
 #a2hs .g-os button[aria-pressed="true"]{background:#1e2a35;color:#f3ead6}
-#a2hs .caption{min-height:46px;margin:0;text-align:center;font-weight:600;font-size:16px;text-wrap:balance}
+#a2hs .caption{min-height:46px;margin:0;text-align:center;font-family:"Special Elite","Courier Prime","Courier New",monospace;font-weight:400;font-size:16px;text-wrap:balance}
 #a2hs .small{margin:0;color:#5c6670;font-size:13px;text-align:center}
 #a2hs .dots{display:flex;gap:6px}#a2hs .dots i{width:8px;height:8px;border-radius:50%;background:#cdbf9f}#a2hs .dots i.on{background:#b0812a}
 #a2hs .acts{display:flex;gap:8px;width:100%}#a2hs .acts button{flex:1;height:40px;color:#1e2a35;background:#e2d6bb;border:0}#a2hs .acts .pri{background:#1e2a35;color:#f3ead6}
@@ -212,9 +204,9 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
 #a2hs .scr{position:relative;width:100%;height:100%;border-radius:23px;overflow:hidden;background:#24332a;color:#111;font:11px/1.25 -apple-system,system-ui,sans-serif}
 #a2hs .ly{position:absolute;inset:0;transition:opacity .35s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
 #a2hs .page{background:#120c08 url(splash-port.jpg) center 30%/cover}
-#a2hs .mini-t{position:absolute;left:0;right:0;top:110px;text-align:center;color:#f1e6c8;font:700 22px/1 "Courier Prime",monospace;text-shadow:0 1px 6px #000}
-#a2hs .mini-t small{display:block;margin-top:6px;font:11px "Courier Prime",monospace;color:#dccfb2}
-#a2hs .mini-t i{display:inline-block;margin-top:10px;background:#7e1d30;color:#f6e6ea;font:600 11px "Oswald",sans-serif;font-style:normal;padding:3px 14px 3px 6px;transform:rotate(-2deg)}
+#a2hs .mini-t{position:absolute;left:0;right:0;top:110px;text-align:center;color:#f3ead2;font:700 26px/1 "Kalam",cursive;text-shadow:0 1px 6px #000}
+#a2hs .mini-t small{display:block;margin-top:6px;font:11px "Special Elite","Courier Prime","Courier New",monospace;color:#dccfb2}
+#a2hs .mini-t i{display:inline-block;margin-top:10px;background:#5e1222;color:#ecc9d0;font:700 11px "Rubik",sans-serif;letter-spacing:.08em;font-style:normal;padding:3px 14px 3px 6px;transform:rotate(-2deg)}
 #a2hs .ios-bar{position:absolute;left:0;right:0;bottom:0;height:64px;background:rgba(247,247,250,.98);border-top:1px solid #d9dbe0}
 #a2hs .ios-bar .url{margin:6px 10px 0;height:20px;border-radius:7px;background:#e6e7eb;display:grid;place-items:center;color:#555;font-size:9px}
 #a2hs .ios-bar .icons{display:flex;justify-content:space-around;align-items:center;height:34px;color:#1a73e8}
@@ -268,7 +260,47 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
   <div class="intro-in">
     <h1 class="i-title"><span class="w" style="animation-delay:.12s">K<span class="amp">&amp;</span>E</span> <span class="w" style="animation-delay:.3s">4081-3</span></h1>
     <p class="i-sub">c. 1952 · Log Log Duplex Decitrig</p>
-    <div class="dymo-wrap" aria-hidden="true"><div class="dymo"><b>J</b><b>.</b><b>J</b><b>.</b><b>L</b><b>.</b></div></div>
+    <div class="dymo-wrap"><svg class="dymo" viewBox="0 0 300 54" width="300" height="54" role="img" aria-label="J.J.L.">
+  <defs>
+    <linearGradient id="dyTape" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6a1424"/><stop offset=".1" stop-color="#8a2236"/><stop offset=".26" stop-color="#6b1526"/><stop offset=".8" stop-color="#4f0c1a"/><stop offset="1" stop-color="#33060f"/>
+    </linearGradient>
+    <linearGradient id="dyGloss" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".18" stop-color="#fff" stop-opacity=".22"/><stop offset=".32" stop-color="#fff" stop-opacity="0"/><stop offset=".7" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="dyTex" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="4"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/>
+    </filter>
+    <!-- raised, stress-whitened letters -->
+    <filter id="dyEmboss" x="-10%" y="-20%" width="120%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.3" result="b"/>
+      <feSpecularLighting in="b" surfaceScale="2" specularConstant=".45" specularExponent="12" lighting-color="#fff" result="s"><feDistantLight azimuth="235" elevation="38"/></feSpecularLighting>
+      <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+      <feDiffuseLighting in="b" surfaceScale="1.6" diffuseConstant="1.15" lighting-color="#fff" result="d"><feDistantLight azimuth="235" elevation="48"/></feDiffuseLighting>
+      <feComposite in="d" in2="SourceAlpha" operator="in" result="d2"/>
+      <feBlend in="SourceGraphic" in2="d2" mode="multiply" result="m"/>
+      <feComposite in="s2" in2="m" operator="arithmetic" k2=".35" k3="1" result="lit"/>
+      <feOffset in="SourceAlpha" dx=".8" dy="1.6" result="o"/><feGaussianBlur in="o" stdDeviation=".7" result="ob"/>
+      <feFlood flood-color="#26040c" flood-opacity=".55"/><feComposite in2="ob" operator="in" result="sh"/>
+      <feMerge><feMergeNode in="sh"/><feMergeNode in="lit"/></feMerge>
+    </filter>
+  </defs>
+  <!-- tape: cut square on the left, a little long and slightly angled on the right -->
+  <path d="M3,6.5 L289,4 L296,48.5 L4.5,50 Z" fill="url(#dyTape)"/>
+  <path d="M3,6.5 L289,4 L296,48.5 L4.5,50 Z" fill="#000" filter="url(#dyTex)"/>
+  <path d="M3,6.5 L289,4 L296,48.5 L4.5,50 Z" fill="url(#dyGloss)"/>
+  <path d="M3.5,8 L289,5.5" stroke="#c46176" stroke-opacity=".45" stroke-width="1.2"/>
+  <path d="M4.5,49 L295.6,47.4" stroke="#1d0309" stroke-opacity=".7" stroke-width="1.6"/>
+  <g filter="url(#dyEmboss)" fill="#ecc9d0" fill-opacity=".93" font-family="Rubik, 'Arial Rounded MT Bold', Arial, sans-serif" font-weight="700" font-size="26" text-anchor="middle">
+    <text x="30" y="37.4" transform="rotate(-1.2 30 30)">J</text>
+    <text x="54" y="38.2">.</text>
+    <text x="78.4" y="37.9" transform="rotate(1 78 30)">J</text>
+    <text x="102" y="38">.</text>
+    <text x="126.6" y="37.2" transform="rotate(-.6 126 30)">L</text>
+    <text x="150.5" y="38.4">.</text>
+  </g>
+</svg></div>
     <button class="i-start" id="iStart">Open the rule</button>
     <p class="i-turn">Best held sideways</p>
     <button class="a2hs-link" id="iA2hs" hidden>Add to Home Screen</button>
