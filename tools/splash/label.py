@@ -1,49 +1,48 @@
-# Embossed label tape, drawn: one continuous strip, square-cut ends, fixed-pitch glyphs centred on it.
-PITCH=24; CAP=24; SW=4.8
+"""Embossed label tape (J.J.L.), modelled on classic embossing-tool labels:
+thin raised strokes whitened by the stretch, with the tape colour showing as a groove down the middle
+of each stroke; fixed pitch; one flat glossy strip with square-cut ends; text centred."""
+CAP=21; PITCH=21; SW=3.6
 def glyph(c,x0,y0):
-    h=SW/2; t=y0+h; b=y0+CAP-h
-    if c=='J':  # stem on the right, short squared hook
-        s=x0+16; l=x0+5.5; r=2.2
-        return f'<path d="M{s},{t} V{b-r} Q{s},{b} {s-r},{b} H{l+r} Q{l},{b} {l},{b-r} V{b-5.6}" fill="none"/>'
+    h=SW/2; t=y0; b=y0+CAP
+    if c=='J':          # stem on the right, short hook with a slightly squared drop
+        s=x0+14.5; l=x0+4; r=3.2
+        return f'M{s},{t} V{b-r} Q{s},{b} {s-r},{b} H{l+r} Q{l},{b} {l},{b-r} V{b-6}',None
     if c=='L':
-        s=x0+6.5
-        return f'<path d="M{s},{t} V{b} H{x0+17.5}" fill="none"/>'
+        return f'M{x0+5},{t} V{b} H{x0+16}',None
     if c=='.':
-        return f'<rect x="{x0+PITCH/2-3.1}" y="{y0+CAP-6.2}" width="6.2" height="6.2" rx="1.2" stroke="none"/>'
-    raise ValueError(c)
-def label(text='J.J.L.',W=236,H=50):
-    n=len(text); tw=n*PITCH
-    x0=(W-tw)/2+1.2; y0=(H-CAP)/2+.4          # optical centring: the periods sit low, nudge right a hair
-    gl=''.join(glyph(c,x0+i*PITCH,y0) for i,c in enumerate(text))
+        return None,(x0+PITCH/2,b-1.1)
+def label(text='J.J.L.',W=230,H=48,tape='#6a1426'):
+    n=len(text); tw=(n-1)*PITCH+16
+    x0=(W-tw)/2-2; y0=(H-CAP)/2
+    paths=[];dots=[]
+    for i,c in enumerate(text):
+        p,d=glyph(c,x0+i*PITCH,y0)
+        if p: paths.append(p)
+        if d: dots.append(d)
+    P=' '.join(paths)
+    def strokes(dx,dy,col,w,op):
+        s=f'<path d="{P}" transform="translate({dx},{dy})" fill="none" stroke="{col}" stroke-width="{w}" stroke-opacity="{op}" stroke-linejoin="round" stroke-linecap="round"/>'
+        s+=''.join(f'<circle cx="{x+dx}" cy="{y+dy}" r="{w/2+.4:.2f}" fill="{col}" fill-opacity="{op}"/>' for x,y in dots)
+        return s
     return f'''<svg class="dymo" viewBox="-6 -6 {W+12} {H+14}" width="{W+12}" height="{H+14}" role="img" aria-label="{text}">
   <defs>
     <linearGradient id="dyTape" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#5a1020"/><stop offset=".07" stop-color="#8b2639"/><stop offset=".2" stop-color="#6d1628"/><stop offset=".85" stop-color="#560d1d"/><stop offset="1" stop-color="#3a0712"/>
+      <stop offset="0" stop-color="#4f0d1b"/><stop offset=".06" stop-color="#7d1f33"/><stop offset=".16" stop-color="{tape}"/><stop offset=".9" stop-color="#5c1020"/><stop offset="1" stop-color="#3a0712"/>
     </linearGradient>
-    <linearGradient id="dyGloss" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".22" stop-color="#fff" stop-opacity=".13"/><stop offset=".36" stop-color="#fff" stop-opacity="0"/><stop offset=".74" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    <linearGradient id="dyGloss" x1="0" y1="0" x2="1" y2=".25">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".1"/><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </linearGradient>
-    <filter id="dyTex" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="2" seed="4"/>
-      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .05 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-    <filter id="dyEmboss" x="-20%" y="-30%" width="140%" height="160%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="1.15" result="b"/>
-      <feSpecularLighting in="b" surfaceScale="2" specularConstant=".5" specularExponent="14" lighting-color="#fff" result="s"><feDistantLight azimuth="235" elevation="40"/></feSpecularLighting>
-      <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
-      <feDiffuseLighting in="b" surfaceScale="1.6" diffuseConstant="1.15" lighting-color="#fff" result="d"><feDistantLight azimuth="235" elevation="50"/></feDiffuseLighting>
-      <feComposite in="d" in2="SourceAlpha" operator="in" result="d2"/>
-      <feBlend in="SourceGraphic" in2="d2" mode="multiply" result="m"/>
-      <feComposite in="s2" in2="m" operator="arithmetic" k2=".35" k3="1" result="lit"/>
-      <feOffset in="SourceAlpha" dx=".7" dy="1.5" result="o"/><feGaussianBlur in="o" stdDeviation=".7" result="ob"/>
-      <feFlood flood-color="#22030a" flood-opacity=".55"/><feComposite in2="ob" operator="in" result="sh"/>
-      <feMerge><feMergeNode in="sh"/><feMergeNode in="lit"/></feMerge>
-    </filter>
+    <filter id="dySoft" x="-5%" y="-20%" width="110%" height="140%"><feGaussianBlur stdDeviation=".35"/></filter>
   </defs>
-  <rect x="0" y="0" width="{W}" height="{H}" rx="1.6" fill="url(#dyTape)"/>
-  <rect x="0" y="0" width="{W}" height="{H}" rx="1.6" fill="#000" filter="url(#dyTex)"/>
-  <rect x="0" y="0" width="{W}" height="{H}" rx="1.6" fill="url(#dyGloss)"/>
-  <path d="M1,1.6 H{W-1}" stroke="#c46176" stroke-opacity=".4" stroke-width="1.1"/>
-  <path d="M1,{H-.8} H{W-1}" stroke="#1d0309" stroke-opacity=".7" stroke-width="1.5"/>
-  <g filter="url(#dyEmboss)" fill="#ecc9d0" stroke="#ecc9d0" fill-opacity=".94" stroke-opacity=".94" stroke-width="{SW}" stroke-linejoin="round" stroke-linecap="butt">{gl}</g>
+  <rect x="0" y="0" width="{W}" height="{H}" fill="url(#dyTape)"/>
+  <rect x="0" y="0" width="{W}" height="{H}" fill="url(#dyGloss)"/>
+  <path d="M0,1 H{W}" stroke="#c46176" stroke-opacity=".35" stroke-width="1"/>
+  <g filter="url(#dySoft)">
+    {strokes(.7,1.1,'#1c0207',SW+.6,.55)}
+    {strokes(0,0,'#f4e7e9',SW,.97)}
+    {strokes(.35,.45,tape,SW*.3,.85)}
+    {strokes(-.45,-.5,'#ffffff',SW*.28,.55)}
+  </g>
 </svg>'''
 if __name__=='__main__':
     open('label.svg.html','w').write(label())

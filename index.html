@@ -260,35 +260,25 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
   <div class="intro-in">
     <h1 class="i-title"><span class="w" style="animation-delay:.12s">K<span class="amp">&amp;</span>E</span> <span class="w" style="animation-delay:.3s">4081-3</span></h1>
     <p class="i-sub">c. 1952 · Log Log Duplex Decitrig</p>
-    <div class="dymo-wrap"><svg class="dymo" viewBox="-6 -6 248 64" width="248" height="64" role="img" aria-label="J.J.L.">
+    <div class="dymo-wrap"><svg class="dymo" viewBox="-6 -6 242 62" width="242" height="62" role="img" aria-label="J.J.L.">
   <defs>
     <linearGradient id="dyTape" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#5a1020"/><stop offset=".07" stop-color="#8b2639"/><stop offset=".2" stop-color="#6d1628"/><stop offset=".85" stop-color="#560d1d"/><stop offset="1" stop-color="#3a0712"/>
+      <stop offset="0" stop-color="#4f0d1b"/><stop offset=".06" stop-color="#7d1f33"/><stop offset=".16" stop-color="#6a1426"/><stop offset=".9" stop-color="#5c1020"/><stop offset="1" stop-color="#3a0712"/>
     </linearGradient>
-    <linearGradient id="dyGloss" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".22" stop-color="#fff" stop-opacity=".13"/><stop offset=".36" stop-color="#fff" stop-opacity="0"/><stop offset=".74" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    <linearGradient id="dyGloss" x1="0" y1="0" x2="1" y2=".25">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity=".1"/><stop offset=".3" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </linearGradient>
-    <filter id="dyTex" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="2" seed="4"/>
-      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .05 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-    <filter id="dyEmboss" x="-20%" y="-30%" width="140%" height="160%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="1.15" result="b"/>
-      <feSpecularLighting in="b" surfaceScale="2" specularConstant=".5" specularExponent="14" lighting-color="#fff" result="s"><feDistantLight azimuth="235" elevation="40"/></feSpecularLighting>
-      <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
-      <feDiffuseLighting in="b" surfaceScale="1.6" diffuseConstant="1.15" lighting-color="#fff" result="d"><feDistantLight azimuth="235" elevation="50"/></feDiffuseLighting>
-      <feComposite in="d" in2="SourceAlpha" operator="in" result="d2"/>
-      <feBlend in="SourceGraphic" in2="d2" mode="multiply" result="m"/>
-      <feComposite in="s2" in2="m" operator="arithmetic" k2=".35" k3="1" result="lit"/>
-      <feOffset in="SourceAlpha" dx=".7" dy="1.5" result="o"/><feGaussianBlur in="o" stdDeviation=".7" result="ob"/>
-      <feFlood flood-color="#22030a" flood-opacity=".55"/><feComposite in2="ob" operator="in" result="sh"/>
-      <feMerge><feMergeNode in="sh"/><feMergeNode in="lit"/></feMerge>
-    </filter>
+    <filter id="dySoft" x="-5%" y="-20%" width="110%" height="140%"><feGaussianBlur stdDeviation=".35"/></filter>
   </defs>
-  <rect x="0" y="0" width="236" height="50" rx="1.6" fill="url(#dyTape)"/>
-  <rect x="0" y="0" width="236" height="50" rx="1.6" fill="#000" filter="url(#dyTex)"/>
-  <rect x="0" y="0" width="236" height="50" rx="1.6" fill="url(#dyGloss)"/>
-  <path d="M1,1.6 H235" stroke="#c46176" stroke-opacity=".4" stroke-width="1.1"/>
-  <path d="M1,49.2 H235" stroke="#1d0309" stroke-opacity=".7" stroke-width="1.5"/>
-  <g filter="url(#dyEmboss)" fill="#ecc9d0" stroke="#ecc9d0" fill-opacity=".94" stroke-opacity=".94" stroke-width="4.8" stroke-linejoin="round" stroke-linecap="butt"><path d="M63.2,15.8 V32.8 Q63.2,35.0 61.0,35.0 H54.900000000000006 Q52.7,35.0 52.7,32.8 V29.4" fill="none"/><rect x="80.10000000000001" y="31.2" width="6.2" height="6.2" rx="1.2" stroke="none"/><path d="M111.2,15.8 V32.8 Q111.2,35.0 109.0,35.0 H102.9 Q100.7,35.0 100.7,32.8 V29.4" fill="none"/><rect x="128.1" y="31.2" width="6.2" height="6.2" rx="1.2" stroke="none"/><path d="M149.7,15.8 V35.0 H160.7" fill="none"/><rect x="176.1" y="31.2" width="6.2" height="6.2" rx="1.2" stroke="none"/></g>
+  <rect x="0" y="0" width="230" height="48" fill="url(#dyTape)"/>
+  <rect x="0" y="0" width="230" height="48" fill="url(#dyGloss)"/>
+  <path d="M0,1 H230" stroke="#c46176" stroke-opacity=".35" stroke-width="1"/>
+  <g filter="url(#dySoft)">
+    <path d="M67.0,13.5 V31.3 Q67.0,34.5 63.8,34.5 H59.7 Q56.5,34.5 56.5,31.3 V28.5 M109.0,13.5 V31.3 Q109.0,34.5 105.8,34.5 H101.7 Q98.5,34.5 98.5,31.3 V28.5 M141.5,13.5 V34.5 H152.5" transform="translate(0.7,1.1)" fill="none" stroke="#1c0207" stroke-width="4.2" stroke-opacity="0.55" stroke-linejoin="round" stroke-linecap="round"/><circle cx="84.7" cy="34.5" r="2.50" fill="#1c0207" fill-opacity="0.55"/><circle cx="126.7" cy="34.5" r="2.50" fill="#1c0207" fill-opacity="0.55"/><circle cx="168.7" cy="34.5" r="2.50" fill="#1c0207" fill-opacity="0.55"/>
+    <path d="M67.0,13.5 V31.3 Q67.0,34.5 63.8,34.5 H59.7 Q56.5,34.5 56.5,31.3 V28.5 M109.0,13.5 V31.3 Q109.0,34.5 105.8,34.5 H101.7 Q98.5,34.5 98.5,31.3 V28.5 M141.5,13.5 V34.5 H152.5" transform="translate(0,0)" fill="none" stroke="#f4e7e9" stroke-width="3.6" stroke-opacity="0.97" stroke-linejoin="round" stroke-linecap="round"/><circle cx="84.0" cy="33.4" r="2.20" fill="#f4e7e9" fill-opacity="0.97"/><circle cx="126.0" cy="33.4" r="2.20" fill="#f4e7e9" fill-opacity="0.97"/><circle cx="168.0" cy="33.4" r="2.20" fill="#f4e7e9" fill-opacity="0.97"/>
+    <path d="M67.0,13.5 V31.3 Q67.0,34.5 63.8,34.5 H59.7 Q56.5,34.5 56.5,31.3 V28.5 M109.0,13.5 V31.3 Q109.0,34.5 105.8,34.5 H101.7 Q98.5,34.5 98.5,31.3 V28.5 M141.5,13.5 V34.5 H152.5" transform="translate(0.35,0.45)" fill="none" stroke="#6a1426" stroke-width="1.08" stroke-opacity="0.85" stroke-linejoin="round" stroke-linecap="round"/><circle cx="84.35" cy="33.85" r="0.94" fill="#6a1426" fill-opacity="0.85"/><circle cx="126.35" cy="33.85" r="0.94" fill="#6a1426" fill-opacity="0.85"/><circle cx="168.35" cy="33.85" r="0.94" fill="#6a1426" fill-opacity="0.85"/>
+    <path d="M67.0,13.5 V31.3 Q67.0,34.5 63.8,34.5 H59.7 Q56.5,34.5 56.5,31.3 V28.5 M109.0,13.5 V31.3 Q109.0,34.5 105.8,34.5 H101.7 Q98.5,34.5 98.5,31.3 V28.5 M141.5,13.5 V34.5 H152.5" transform="translate(-0.45,-0.5)" fill="none" stroke="#ffffff" stroke-width="1.0080000000000002" stroke-opacity="0.55" stroke-linejoin="round" stroke-linecap="round"/><circle cx="83.55" cy="32.9" r="0.90" fill="#ffffff" fill-opacity="0.55"/><circle cx="125.55" cy="32.9" r="0.90" fill="#ffffff" fill-opacity="0.55"/><circle cx="167.55" cy="32.9" r="0.90" fill="#ffffff" fill-opacity="0.55"/>
+  </g>
 </svg></div>
     <button class="i-start" id="iStart">Open the rule</button>
     <p class="i-turn">Best held sideways</p>
