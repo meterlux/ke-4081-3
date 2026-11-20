@@ -165,10 +165,10 @@ body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
 .i-head,.i-acts{position:relative;display:grid;justify-items:center;text-align:center;padding:22px 40px;background:radial-gradient(closest-side,rgba(10,9,8,.82),rgba(10,9,8,.55) 60%,rgba(10,9,8,0))}
 .i-head{align-self:end;gap:10px;padding-bottom:6px}
 .i-acts{align-self:center;gap:12px}
-.i-title{margin:0;font-family:"Courier Prime","Courier New",Courier,monospace;font-weight:700;font-size:clamp(38px,min(11.5vw,14vh),70px);line-height:1;letter-spacing:0;color:#f3ead2;text-shadow:0 2px 14px rgba(0,0,0,.45);white-space:nowrap}
+.i-title{margin:0;font-family:"Courier Prime","Courier New",Courier,monospace;font-weight:400;-webkit-text-stroke:.032em #f3ead2;paint-order:stroke fill;font-size:clamp(38px,min(11.5vw,14vh),70px);line-height:1;letter-spacing:0;color:#f3ead2;text-shadow:0 2px 14px rgba(0,0,0,.45);white-space:nowrap}
 .i-title .w{display:inline-block;opacity:0;transform:translateY(18px);animation:rise .6s cubic-bezier(.2,.8,.2,1) forwards}
 @keyframes rise{to{opacity:1;transform:none}}
-.i-sub{margin:0;font-family:"Architects Daughter","Kalam",cursive;font-weight:400;font-size:clamp(15px,4.2vw,21px);letter-spacing:.03em;white-space:nowrap;color:#d8cba8;opacity:0;animation:rise .6s .55s forwards}
+.i-sub{margin:0;font-family:"Architects Daughter","Kalam",cursive;font-weight:400;font-size:clamp(13px,3.6vw,20px);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;color:#d8cba8;opacity:0;animation:rise .6s .55s forwards}
 /* embossed label tape: slightly crooked, off-center, cut a little long */
 .dymo-wrap{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));filter:drop-shadow(1px 3px 2px rgba(0,0,0,.7));transform:rotate(-1.4deg);opacity:0;animation:stick .45s 1.7s cubic-bezier(.3,1.4,.5,1) forwards}
 @keyframes stick{from{opacity:0;transform:rotate(-5deg) scale(1.15)}to{opacity:1;transform:rotate(-1.4deg)}}
