@@ -11,7 +11,7 @@ Gestures: drag either fixed strip sideways to move the whole rule under the curs
 
 The rule's surface and slide ends come from photos of the actual rule (`textures.js`): perspective-corrected, with the printed ink and the cursor removed, then renewed to look like a new rule with only a faint patina. The scales are drawn on top mathematically, so every reading is exact.
 
-Orientation: by default the app always runs in landscape; if the phone is upright (or rotation-locked) the whole app turns sideways. The phone button (shown when the phone is upright) switches to the upright view instead: the rule fills the screen height at its natural proportions, heavily cropped at the sides, so the scales and hairline are large.
+Orientation follows how the phone is held. Sideways shows the full rule; upright shows the large, cropped close-up. With rotation lock on, the app reads the motion sensor (iPhone asks once for permission, on the first tap) and turns itself the right way round. Settings → Screen offers Automatic (default), Sideways or Upright.
 
 It is two files (`index.html` and `textures.js`). On iPhone, open it in Safari, tap Share, then Add to Home Screen, and it runs full screen.
 
