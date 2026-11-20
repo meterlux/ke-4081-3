@@ -14,3 +14,9 @@ The rule's surface and slide ends come from photos of the actual rule (`textures
 Orientation: by default the app always runs in landscape; if the phone is upright (or rotation-locked) the whole app turns sideways. The phone button (shown when the phone is upright) switches to the upright view instead: the rule fills the screen height at its natural proportions, heavily cropped at the sides, so the scales and hairline are large.
 
 It is two files (`index.html` and `textures.js`). On iPhone, open it in Safari, tap Share, then Add to Home Screen, and it runs full screen.
+
+## Intro screen
+
+Each launch opens on a title page over a mid-century drafting-table scene (`splash.jpg`): blueprint, tracing vellum, the rule itself, a 30/60 triangle, a bow compass, a pencil and a thermos, with a couple of green-and-yellow Easter eggs. "Add to Home Screen" (shown only in the browser) plays a step-by-step guide for iPhone and Android.
+
+The scene is generated from `tools/splash/scene.py` (SVG) and rendered with `tools/splash/render.js` (Playwright), then saved as a 1600×1600 JPEG.

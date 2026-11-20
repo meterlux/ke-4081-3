@@ -15,7 +15,7 @@
 <title>JJL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;500;600&family=Courier+Prime:wght@400;700&family=Jost:wght@500;600&family=Oswald:wght@500;600&display=swap">
 <style>
 /* Layout: the rule owns the screen; a slim control deck sits under it (hidden in Expert). */
 :root{
@@ -153,10 +153,120 @@ body.upright #quizRow .acts button{flex:1}
 body.upright #learnUI{flex-wrap:wrap}
 body.upright #stepText{flex-basis:100%;max-height:7.5em;font-size:15px}
 body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
+/* ---------- intro: mid-century drafting table ---------- */
+.intro{position:fixed;inset:0;z-index:40;display:grid;place-items:center;overflow:hidden;background:#24332a;color:#f4ecd8;
+  padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(16px,env(safe-area-inset-left,0px));
+  transition:opacity .5s ease,visibility .5s;-webkit-user-select:none;user-select:none}
+.intro.gone{opacity:0;visibility:hidden}
+.intro-bg{position:absolute;inset:-3%;background:#2a3a2c url(splash.jpg) center/cover no-repeat;animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{from{transform:scale(1.06) translate(-.6%,.4%)}to{transform:scale(1) translate(.6%,-.4%)}}
+.intro-in{position:relative;display:grid;gap:12px;justify-items:center;text-align:center;max-width:470px;padding:34px 34px 28px;
+  background:radial-gradient(closest-side,rgba(13,20,30,.9),rgba(13,20,30,.66) 62%,rgba(13,20,30,0))}
+.i-title{margin:0;font-family:"Jost","Futura","Avenir Next",sans-serif;font-weight:600;font-size:clamp(38px,min(12vw,14vh),66px);line-height:1;letter-spacing:.02em;color:#f4ecd8;text-shadow:0 2px 14px rgba(0,0,0,.45);white-space:nowrap}
+.i-title .w{display:inline-block;opacity:0;transform:translateY(18px);animation:rise .6s cubic-bezier(.2,.8,.2,1) forwards}
+.i-title .amp{font-family:"Courier Prime",Georgia,serif;font-weight:700;font-size:.82em;margin:0 .02em;color:#e3c27a}
+@keyframes rise{to{opacity:1;transform:none}}
+.i-sub{margin:0;font-family:"Courier Prime","Courier New",monospace;font-size:clamp(12.5px,3.5vw,17px);letter-spacing:.04em;white-space:nowrap;color:#dccfb2;opacity:0;animation:rise .6s .55s forwards}
+/* embossed label tape: slightly crooked, off-center, cut a little long */
+.dymo-wrap{margin:4px 0 6px;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.6));transform:translateX(-17px) rotate(-1.7deg);opacity:0;animation:stick .45s .95s cubic-bezier(.3,1.4,.5,1) forwards}
+@keyframes stick{from{opacity:0;transform:translateX(-17px) rotate(-5deg) scale(1.15)}to{opacity:1;transform:translateX(-17px) rotate(-1.7deg)}}
+.dymo{position:relative;display:flex;align-items:center;gap:.3em;padding:7px 44px 7px 13px;
+  background:linear-gradient(180deg,#a02d42 0%,#7e1d30 28%,#6a1628 66%,#540f1f 100%);
+  clip-path:polygon(0 8%,100% 0,99.5% 100%,.6% 92%);
+  font-family:"Oswald","Arial Narrow",sans-serif;font-weight:600;font-size:25px;line-height:1;letter-spacing:.04em;color:#f6e6ea}
+.dymo::before{content:"";position:absolute;inset:0 0 56% 0;background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,0))}
+.dymo::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px)}
+.dymo b{position:relative;font-weight:600;text-shadow:0 1.5px 0 rgba(45,0,12,.6),0 -1px 0 rgba(255,255,255,.4),0 0 2px rgba(255,255,255,.35)}
+.dymo b:nth-child(1){transform:translateY(-.6px)} .dymo b:nth-child(3){transform:translateY(.8px) rotate(-1.6deg)}
+.dymo b:nth-child(5){transform:translateY(-.3px) rotate(1.2deg)} .dymo b:nth-child(even){transform:translateY(1px)}
+.i-start{margin-top:4px;font-family:"Jost","Futura",sans-serif;font-weight:600;font-size:21px;letter-spacing:.03em;height:auto;padding:13px 46px;border:0;border-radius:12px;
+  background:#d6a23e;color:#1b1408;box-shadow:0 3px 0 #8d6721,0 10px 22px rgba(0,0,0,.4);opacity:0;animation:rise .5s 1.25s forwards}
+.i-start:active{transform:translateY(2px);box-shadow:0 1px 0 #8d6721,0 6px 14px rgba(0,0,0,.4)}
+.i-turn{margin:-4px 0 0;font-size:13px;color:#b9c4c9;opacity:0;animation:rise .5s 1.4s forwards}
+@media (orientation:landscape){.i-turn{display:none}}
+.a2hs-link{height:auto;color:#f4ecd8;background:none;border:0;text-decoration:underline;text-underline-offset:4px;font-weight:600;font-size:15px;padding:6px;opacity:0;animation:rise .5s 1.55s forwards}
+.i-ver{margin:0;font-family:"Courier Prime",monospace;font-size:12px;color:#9aa6a6;opacity:0;animation:rise .5s 1.7s forwards}
+@media (max-height:460px){.intro-in{gap:8px;padding:20px 30px 16px}.i-start{padding:11px 42px}}
+@media (prefers-reduced-motion:reduce){.intro-bg{animation:none}.i-title .w,.i-sub,.dymo-wrap,.i-start,.i-turn,.a2hs-link,.i-ver{animation:none;opacity:1}.i-title .w{transform:none}}
+
+/* ---------- Add to Home Screen guide (pattern from the football app) ---------- */
+#a2hs{position:fixed;inset:0;z-index:60;background:rgba(8,12,18,.78);display:grid;place-items:center;padding:12px}
+#a2hs .g-card{background:#f3ead6;color:#1e2a35;border-radius:18px;width:min(380px,100%);padding:16px 16px 18px;display:grid;gap:12px;justify-items:center;max-height:calc(100% - 4px);overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+#a2hs h2{font-family:"Jost",sans-serif;font-weight:600;font-size:22px;margin:0}
+#a2hs .g-os{display:flex;background:#e2d6bb;border-radius:10px;padding:2px}
+#a2hs .g-os button{background:transparent;border:0;height:32px;padding:0 16px;color:#4a5560;font-weight:600}
+#a2hs .g-os button[aria-pressed="true"]{background:#1e2a35;color:#f3ead6}
+#a2hs .caption{min-height:46px;margin:0;text-align:center;font-weight:600;font-size:16px;text-wrap:balance}
+#a2hs .small{margin:0;color:#5c6670;font-size:13px;text-align:center}
+#a2hs .dots{display:flex;gap:6px}#a2hs .dots i{width:8px;height:8px;border-radius:50%;background:#cdbf9f}#a2hs .dots i.on{background:#b0812a}
+#a2hs .acts{display:flex;gap:8px;width:100%}#a2hs .acts button{flex:1;height:40px;color:#1e2a35;background:#e2d6bb;border:0}#a2hs .acts .pri{background:#1e2a35;color:#f3ead6}
+#a2hs .phone{width:200px;height:396px;border-radius:30px;background:#0b0f18;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,.35);flex:none}
+#a2hs .scr{position:relative;width:100%;height:100%;border-radius:23px;overflow:hidden;background:#24332a;color:#111;font:11px/1.25 -apple-system,system-ui,sans-serif}
+#a2hs .ly{position:absolute;inset:0;transition:opacity .35s ease,transform .5s cubic-bezier(.2,.8,.2,1)}
+#a2hs .page{background:#24332a url(splash.jpg) center/cover}
+#a2hs .mini-t{position:absolute;left:0;right:0;top:110px;text-align:center;color:#f4ecd8;font:600 22px/1 "Jost",sans-serif}
+#a2hs .mini-t small{display:block;margin-top:6px;font:11px "Courier Prime",monospace;color:#dccfb2}
+#a2hs .mini-t i{display:inline-block;margin-top:10px;background:#7e1d30;color:#f6e6ea;font:600 11px "Oswald",sans-serif;font-style:normal;padding:3px 14px 3px 6px;transform:rotate(-2deg)}
+#a2hs .ios-bar{position:absolute;left:0;right:0;bottom:0;height:64px;background:rgba(247,247,250,.98);border-top:1px solid #d9dbe0}
+#a2hs .ios-bar .url{margin:6px 10px 0;height:20px;border-radius:7px;background:#e6e7eb;display:grid;place-items:center;color:#555;font-size:9px}
+#a2hs .ios-bar .icons{display:flex;justify-content:space-around;align-items:center;height:34px;color:#1a73e8}
+#a2hs svg.gi{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#a2hs .hlt{border-radius:8px;transition:box-shadow .3s,background .3s}
+#a2hs .sheet{display:flex;flex-direction:column;position:absolute;left:0;right:0;bottom:0;height:80%;background:#f2f2f7;border-radius:14px 14px 0 0;transform:translateY(105%);transition:transform .5s cubic-bezier(.2,.8,.2,1);overflow:hidden;box-shadow:0 -4px 16px rgba(0,0,0,.18)}
+#a2hs .sheet .top{display:flex;gap:8px;align-items:center;padding:10px;background:#fff}
+#a2hs .appicon{width:30px;height:30px;border-radius:8px;background:#101214 url(icon-180.png) center/cover;flex:none}
+#a2hs .rowsvp{flex:1;overflow:hidden}
+#a2hs .rows{padding:8px;transition:transform 1.1s ease .4s;display:grid;gap:1px}
+#a2hs .r6{background:#fff;padding:9px 10px;display:flex;justify-content:space-between;align-items:center}
+#a2hs .r6:first-child{border-radius:8px 8px 0 0}#a2hs .r6:last-child{border-radius:0 0 8px 8px}
+#a2hs .addsc,#a2hs .homesc,#a2hs .and-dlg,#a2hs .and-menu{opacity:0;pointer-events:none}
+#a2hs .addsc{background:#f2f2f7}
+#a2hs .addsc .nv{display:flex;justify-content:space-between;align-items:center;padding:30px 10px 10px;background:#fff;border-bottom:1px solid #ddd}
+#a2hs .addsc .nv b{color:#1a73e8;padding:3px 6px}
+#a2hs .addsc .cd{margin:12px 10px;background:#fff;border-radius:8px;padding:10px;display:flex;gap:10px;align-items:center}
+#a2hs .homesc{background:linear-gradient(160deg,#3d5a4a,#7a6a3a);padding:40px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px 10px;align-content:start}
+#a2hs .homesc span{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.35);justify-self:center}
+#a2hs .homesc .mine{display:grid;justify-items:center;gap:3px;color:#fff;font-size:8px}
+#a2hs .homesc .mine .appicon{width:34px;height:34px;border-radius:9px;transform:scale(0);transition:transform .5s cubic-bezier(.3,1.6,.5,1) .3s}
+#a2hs .and-bar{position:absolute;left:0;right:0;top:0;padding:26px 8px 6px;background:#fff;display:flex;gap:6px;align-items:center;border-bottom:1px solid #ddd}
+#a2hs .and-bar .url{flex:1;height:22px;border-radius:11px;background:#eef0f3;display:grid;place-items:center;color:#555;font-size:9px}
+#a2hs .and-bar .dt{width:24px;height:24px;display:grid;place-items:center;font-size:16px;font-weight:700;color:#333}
+#a2hs .and-menu{position:absolute;right:6px;top:30px;width:140px;background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);padding:4px 0;transform-origin:top right;transform:scale(.8)}
+#a2hs .and-menu div{padding:8px 12px}
+#a2hs .and-menu,#a2hs .and-dlg{transition:opacity .3s ease,transform .35s cubic-bezier(.2,.8,.2,1)}
+#a2hs .and-dlg{position:absolute;left:14px;right:14px;top:120px;background:#fff;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,.3);display:grid;gap:10px}
+#a2hs .and-dlg .btns{display:flex;justify-content:flex-end;gap:14px;color:#1a73e8;font-weight:700}#a2hs .and-dlg .btns b{padding:3px 6px}
+#a2hs .finger{position:absolute;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:rgba(30,42,53,.32);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);opacity:0;transition:left .6s ease,top .6s ease,opacity .3s;z-index:5;pointer-events:none}
+#a2hs .finger.tap{animation:gtap .5s ease}
+@keyframes gtap{40%{transform:scale(.7);background:rgba(214,162,62,.75)}}
+#a2hs .on-hl{box-shadow:0 0 0 3px #d6a23e!important;background:#fff4d6!important}
+#a2hs .scr.ios .and-bar,#a2hs .scr.ios .and-menu,#a2hs .scr.ios .and-dlg{display:none}
+#a2hs .scr.android .ios-bar,#a2hs .scr.android .sheet,#a2hs .scr.android .addsc{display:none}
+#a2hs .scr.ios[data-s="2"] .sheet,#a2hs .scr.ios[data-s="3"] .sheet{transform:none}
+#a2hs .scr.ios[data-s="2"] .rows,#a2hs .scr.ios[data-s="3"] .rows{transform:translateY(-118px)}
+#a2hs .scr.ios[data-s="4"] .addsc{opacity:1}
+#a2hs .scr.ios[data-s="5"] .homesc,#a2hs .scr.android[data-s="4"] .homesc{opacity:1}
+#a2hs .scr.ios[data-s="5"] .homesc .mine .appicon,#a2hs .scr.android[data-s="4"] .homesc .mine .appicon{transform:scale(1)}
+#a2hs .scr.android[data-s="2"] .and-menu{opacity:1;transform:none}
+#a2hs .scr.android[data-s="3"] .and-dlg{opacity:1}
+@media (orientation:landscape) and (max-height:600px){#a2hs .g-card{width:min(640px,100%);grid-template-columns:200px minmax(0,1fr);column-gap:22px;align-items:center;padding:12px 18px}#a2hs .phone{grid-column:1;grid-row:1/span 6;height:min(380px,calc(100vh - 48px))}#a2hs .g-card>:not(.phone){grid-column:2}}
+@media (prefers-reduced-motion:reduce){#a2hs .ly,#a2hs .sheet,#a2hs .rows,#a2hs .finger{transition:none}}
 @media (prefers-reduced-motion:reduce){ .ans.blink::after{animation:none} }
 </style>
 </head>
 <body data-mode="learn">
+<div id="intro" class="intro" aria-label="K&amp;E 4081-3 · J.J.L.">
+  <div class="intro-bg" aria-hidden="true"></div>
+  <div class="intro-in">
+    <h1 class="i-title"><span class="w" style="animation-delay:.12s">K<span class="amp">&amp;</span>E</span> <span class="w" style="animation-delay:.3s">4081-3</span></h1>
+    <p class="i-sub">c. 1952 · Log Log Duplex Decitrig</p>
+    <div class="dymo-wrap" aria-hidden="true"><div class="dymo"><b>J</b><b>.</b><b>J</b><b>.</b><b>L</b><b>.</b></div></div>
+    <button class="i-start" id="iStart">Open the rule</button>
+    <p class="i-turn">Best held sideways</p>
+    <button class="a2hs-link" id="iA2hs" hidden>Add to Home Screen</button>
+    <p class="i-ver">v1.0</p>
+  </div>
+</div>
 <div id="app">
   <div id="stage">
     <canvas id="rule" aria-label="Slide rule. Drag to move the rule or the slide."></canvas>
@@ -1322,6 +1432,86 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>invalidate
 setTimeout(invalidate,600);
 window.__sr={st,SC,read,on,LESSONS,GEN,grade,setMode,goTo,dbg:()=>({flipP,flipFrom,flipA:!!flipA,drag:drag&&{axis:drag.axis}})};
 window.__jump=(l,s)=>{prog.lesson=l;prog.step=s;renderStep();};
+})();
+</script>
+<script>
+/* ---------- intro + Add to Home Screen guide (pattern from the football app) ---------- */
+(()=>{
+const $=s=>document.querySelector(s);
+const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}};
+const reduce=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){return false;}};
+const intro=$('#intro');
+function closeIntro(){intro.classList.add('gone');setTimeout(()=>intro.remove(),600);}
+$('#iStart').onclick=closeIntro;
+if(!isStandalone()){$('#iA2hs').hidden=false;$('#iA2hs').onclick=openA2HS;}
+document.addEventListener('keydown',e=>{if(document.body.contains(intro)&&!$('#a2hs')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();closeIntro();}});
+
+const STEPS={
+  ios:[{s:1,t:'share',cap:'In Safari, tap the Share button.'},{s:2,t:'swipe',cap:'Scroll down the list.'},{s:3,t:'row',cap:'Tap “Add to Home Screen.”'},{s:4,t:'add',cap:'Tap “Add” in the top corner.'},{s:5,t:'icon',cap:'Done. Tap JJL on your Home Screen to open the rule.'}],
+  android:[{s:1,t:'dots',cap:'In Chrome, tap the ⋮ menu in the top corner.'},{s:2,t:'mrow',cap:'Tap “Add to Home screen” (it may say “Install app”).'},{s:3,t:'dadd',cap:'Tap “Add.”'},{s:4,t:'icon',cap:'Done. Tap JJL on your Home Screen to open the rule.'}]
+};
+let timers=[];
+const ic=d=>`<svg class="gi" viewBox="0 0 24 24">${d}</svg>`;
+function openA2HS(){
+  closeA2HS();
+  const os=/android/i.test(navigator.userAgent)?'android':'ios';
+  const m=document.createElement('div');m.id='a2hs';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','Add to Home Screen');
+  const home=Array.from({length:13},(_,i)=>i===5?'<div class="mine"><div class="appicon hlt" data-t="icon"></div>JJL</div>':'<span></span>').join('');
+  m.innerHTML=`<div class="g-card">
+    <h2>Add to Home Screen</h2>
+    <div class="g-os" role="group" aria-label="Phone type"><button id="os-ios" aria-pressed="${os==='ios'}">iPhone</button><button id="os-and" aria-pressed="${os==='android'}">Android</button></div>
+    <div class="phone"><div class="scr ${os}" id="scr" data-s="1">
+      <div class="ly page"><div class="mini-t">K&amp;E 4081-3<small>c. 1952 · Log Log Duplex Decitrig</small><i>J.J.L.</i></div></div>
+      <div class="ios-bar"><div class="url">meterlux.github.io</div><div class="icons">${ic('<path d="M15 18l-6-6 6-6"/>')}${ic('<path d="M9 18l6-6-6-6"/>')}<span class="hlt" data-t="share" style="display:grid;padding:2px">${ic('<path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/>')}</span>${ic('<path d="M4 5h7v14H4zM13 5h7v14h-7z"/>')}${ic('<rect x="4" y="4" width="16" height="16" rx="2"/>')}</div></div>
+      <div class="sheet"><div class="top"><div class="appicon"></div><div><b>JJL</b><br><span style="color:#777">meterlux.github.io</span></div></div>
+        <div style="display:flex;gap:10px;padding:8px 10px;background:#fff;border-top:1px solid #eee"><span style="width:34px;height:34px;border-radius:50%;background:#4aa3ff"></span><span style="width:34px;height:34px;border-radius:50%;background:#34c759"></span><span style="width:34px;height:34px;border-radius:50%;background:#5ac8fa"></span><span style="width:34px;height:34px;border-radius:50%;background:#ff9500"></span></div>
+        <div class="rowsvp"><div class="rows"><div class="r6">Copy</div><div class="r6">Add to Reading List</div><div class="r6">Add Bookmark</div><div class="r6">Add to Favorites</div><div class="r6">Add to Quick Note</div><div class="r6">Find on Page</div><div class="r6 hlt" data-t="row">Add to Home Screen <b style="font-size:14px">⊞</b></div><div class="r6">Markup</div><div class="r6">Print</div></div></div></div>
+      <div class="ly addsc"><div class="nv"><span style="color:#1a73e8">Cancel</span><b style="color:#111">Add to Home Screen</b><b class="hlt" data-t="add">Add</b></div><div class="cd"><div class="appicon"></div><div>JJL<br><span style="color:#777">meterlux.github.io</span></div></div></div>
+      <div class="and-bar"><div class="url">meterlux.github.io</div><div class="dt hlt" data-t="dots">⋮</div></div>
+      <div class="and-menu"><div>New tab</div><div>History</div><div>Bookmarks</div><div>Share…</div><div class="hlt" data-t="mrow">Add to Home screen</div><div>Desktop site</div></div>
+      <div class="and-dlg"><b>Add to Home screen</b><div style="display:flex;gap:8px;align-items:center"><div class="appicon"></div>JJL</div><div class="btns"><span>Cancel</span><b class="hlt" data-t="dadd">Add</b></div></div>
+      <div class="ly homesc">${home}</div>
+      <div class="finger" id="finger"></div>
+    </div></div>
+    <p class="caption" id="cap" aria-live="polite"></p>
+    <div class="dots" id="sdots"></div>
+    <p class="small">Use Safari on iPhone or Chrome on Android, with this page open.</p>
+    <div class="acts"><button id="a2-replay">Replay</button><button class="pri" id="a2-done">Back</button></div>
+  </div>`;
+  document.body.appendChild(m);
+  const setOS=o=>{$('#os-ios').setAttribute('aria-pressed',o==='ios');$('#os-and').setAttribute('aria-pressed',o==='android');$('#scr').className='scr '+o;play(o);};
+  $('#os-ios').onclick=()=>setOS('ios');$('#os-and').onclick=()=>setOS('android');
+  $('#a2-replay').onclick=()=>play($('#scr').classList.contains('android')?'android':'ios');
+  $('#a2-done').onclick=closeA2HS;
+  m.addEventListener('click',e=>{if(e.target===m)closeA2HS();});
+  document.addEventListener('keydown',esc);
+  $('#a2-done').focus();
+  play(os);
+}
+function esc(e){if(e.key==='Escape')closeA2HS();}
+function closeA2HS(){timers.forEach(clearTimeout);timers=[];const m=$('#a2hs');if(m)m.remove();document.removeEventListener('keydown',esc);}
+function play(os){
+  timers.forEach(clearTimeout);timers=[];
+  const scr=$('#scr'),finger=$('#finger'),cap=$('#cap'),dots=$('#sdots'),steps=STEPS[os],slow=reduce()?0.01:1;
+  const at=(ms,fn)=>timers.push(setTimeout(fn,ms*slow));
+  const place=(x,y)=>{finger.style.left=x+'px';finger.style.top=y+'px';};
+  const center=t=>{const e=scr.querySelector(`[data-t="${t}"]`);if(!e)return [90,200];const a=e.getBoundingClientRect(),b=scr.getBoundingClientRect();return [a.left-b.left+a.width/2,a.top-b.top+a.height/2];};
+  scr.querySelectorAll('.on-hl').forEach(e=>e.classList.remove('on-hl'));
+  scr.dataset.s='0';finger.style.opacity=0;place(92,230);
+  const show=i=>{
+    const st=steps[i];scr.dataset.s=String(st.s);cap.textContent=st.cap;
+    dots.innerHTML=steps.map((_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('');
+    scr.querySelectorAll('.on-hl').forEach(e=>e.classList.remove('on-hl'));
+    if(st.t==='swipe'){at(300,()=>{finger.style.opacity=1;place(92,330);});at(900,()=>place(92,210));}
+    else{
+      at(550,()=>{const [x,y]=center(st.t);finger.style.opacity=1;place(x,y);});
+      at(1250,()=>{finger.classList.remove('tap');void finger.offsetWidth;finger.classList.add('tap');const e=scr.querySelector(`[data-t="${st.t}"]`);if(e)e.classList.add('on-hl');});
+      if(i===steps.length-1)at(1900,()=>{finger.style.opacity=0;});
+    }
+    if(i<steps.length-1)at(2700,()=>show(i+1));
+  };
+  at(250,()=>show(0));
+}
 })();
 </script>
 </body>
