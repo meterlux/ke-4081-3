@@ -17,6 +17,6 @@ It is two files (`index.html` and `textures.js`). On iPhone, open it in Safari, 
 
 ## Intro screen
 
-Each launch opens on a title page over a mid-century drafting-table scene (`splash.jpg`): blueprint, tracing vellum, the rule itself, a 30/60 triangle, a bow compass, a pencil and a thermos, with a couple of green-and-yellow Easter eggs. "Add to Home Screen" (shown only in the browser) plays a step-by-step guide for iPhone and Android.
+Each launch opens on a title page over a late-night, jet-age drafting table (`splash-land.jpg` sideways, `splash-port.jpg` upright): the rule itself in focus, stacked shop drawings with drafting tape, a T-square, an engineering computation pad, a pilot's flight log with aviator sunglasses, a swept-wing jet model, a cockpit clock at quarter to midnight, a lidded thermos and an architect's lamp, with a couple of green-and-yellow Easter eggs. "Add to Home Screen" (shown only in the browser) plays a step-by-step guide for iPhone and Android.
 
-The scene is generated from `tools/splash/scene.py` (SVG) and rendered with `tools/splash/render.js` (Playwright), then saved as a 1600×1600 JPEG.
+The scene is generated from `tools/splash/scene.py` (SVG) and rendered with `tools/splash/render.js` (Playwright), then saved as one JPEG per orientation.
