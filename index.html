@@ -1,0 +1,1328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<!--STANDALONE-->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JJL">
+<meta name="theme-color" content="#0e1012">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<!--/STANDALONE-->
+<title>JJL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@400;500;600&display=swap">
+<style>
+/* Layout: the rule owns the screen; a slim control deck sits under it (hidden in Expert). */
+:root{
+  --bg:#0e1012; --panel:#15181b; --raise:#1f2327; --raise2:#272c31; --line:#2c3136;
+  --ink:#ece5d3; --muted:#9ba09c; --brass:#d6a23e; --brass-ink:#1b1408;
+  --red:#e86a5a; --ok:#6cc08a; --blue:#5aa2ec;
+  --f-ui:"Barlow",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --f-cond:"Barlow Condensed","Avenir Next Condensed","Arial Narrow",sans-serif;
+  --sl:env(safe-area-inset-left,0px); --sr:env(safe-area-inset-right,0px);
+  --st:env(safe-area-inset-top,0px); --sb:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink)}
+body{position:fixed;inset:0;overflow:hidden;font-family:var(--f-ui);font-size:15px;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding-top:var(--st);background:var(--bg)}
+#stage{flex:1;position:relative;min-height:0;overflow:hidden}
+#rule{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#probe{position:absolute;visibility:hidden;padding:var(--st) var(--sr) var(--sb) var(--sl)}
+
+button{font:inherit;color:var(--ink);background:var(--raise);border:1px solid var(--line);border-radius:9px;
+  height:34px;padding:0 12px;touch-action:manipulation;cursor:pointer;white-space:nowrap}
+button:active{background:var(--raise2)}
+button:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+button:disabled{opacity:.38}
+button.primary{background:var(--brass);color:var(--brass-ink);border-color:transparent;font-weight:600}
+button.ghost{background:transparent;border-color:transparent}
+button.icon{width:38px;padding:0;display:inline-grid;place-items:center}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+#panel{flex:none;background:var(--panel);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;
+  padding:6px max(10px,var(--sr)) calc(6px + var(--sb)) max(10px,var(--sl))}
+.row{display:flex;align-items:center;gap:6px;min-width:0}
+.seg{display:flex;background:#0a0c0e;border-radius:10px;padding:2px;flex:none}
+.seg button{background:transparent;border:0;height:30px;padding:0 11px;color:var(--muted);font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--raise2);color:var(--brass)}
+#ctx{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.flipLbl{font-family:var(--f-cond);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:13px}
+
+/* learn */
+#lessonBtn{background:transparent;border:0;padding:0 4px;font-weight:600;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto;color:var(--ink)}
+#lessonBtn::after{content:" ▾";color:var(--muted)}
+#stepNo{color:var(--muted);font-variant-numeric:tabular-nums;flex:none;font-size:13px}
+.chip{flex:none;font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;letter-spacing:.02em}
+.chip.try{background:#2c2410;color:var(--brass)}
+.chip.done{background:#173322;color:var(--ok)}
+#learnUI{align-items:flex-start}
+#stepText{flex:1;min-width:0;margin:0;line-height:1.38;font-size:14.5px;max-height:3.2em;overflow:auto;padding-top:2px}
+#stepText b{color:#fff;font-weight:600}
+.nav{display:flex;gap:6px;flex:none}
+
+/* quiz */
+.q{font-family:var(--f-cond);font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ans{font-family:var(--f-cond);font-size:21px;min-width:96px;height:32px;padding:0 10px;border-radius:8px;background:#0a0c0e;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:flex-end;font-variant-numeric:tabular-nums;flex:none}
+.ans:empty::before{content:"answer";color:#555b5f;font-size:16px}
+.ans.blink::after{content:"";width:2px;height:20px;background:var(--brass);margin-left:2px;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.fb{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.fb.ok{color:var(--ok)} .fb.miss{color:var(--red)} .fb.info{color:var(--muted);font-weight:500}
+.keypad{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:4px;flex:1;min-width:0}
+.keypad button{padding:0;font-family:var(--f-cond);font-size:20px;height:38px}
+#quizRow button.act{height:38px}
+.meta{font-family:var(--f-cond);font-size:16px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* overlays on stage */
+#bubble{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:min(640px,calc(100% - 24px - var(--sl) - var(--sr)));
+  max-height:calc(100% - 20px);overflow:auto;background:rgba(22,25,28,.97);border:1px solid #3a4046;border-radius:14px;
+  padding:14px 16px 12px;box-shadow:0 12px 40px rgba(0,0,0,.55);font-size:15px;line-height:1.5;-webkit-user-select:text;user-select:text;box-sizing:border-box}
+#bubble h3{margin:0 0 6px;font-family:var(--f-cond);font-size:20px;font-weight:600;color:var(--brass);letter-spacing:.01em;text-wrap:balance}
+#bubble p{margin:0 0 9px} #bubble ul{margin:0 0 9px;padding-left:20px} #bubble li{margin:2px 0}
+#bubble .fx{font-family:var(--f-cond);font-size:17px;background:#0d0f11;border-radius:6px;padding:2px 7px}
+#bubble .close{position:sticky;float:right;top:0;margin:-4px -6px 0 8px;height:30px;font-size:13px}
+#caption{position:absolute;top:8px;left:50%;transform:translateX(-50%);max-width:calc(100% - 140px - var(--sl) - var(--sr));
+  background:rgba(14,16,18,.9);border:1px solid #3a4046;border-radius:99px;padding:6px 14px;font-size:14px;font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;box-sizing:border-box}
+#caption .n{color:var(--brass);font-weight:600;margin-right:6px}
+#xbtns{position:absolute;right:max(10px,var(--sr));bottom:max(8px,var(--sb));pointer-events:none}
+#xbtns button{pointer-events:auto;width:40px;height:40px;padding:0;border-radius:50%;display:grid;place-items:center;color:#f3c463;background:rgba(14,16,18,.62);border-color:rgba(243,196,99,.35);opacity:.6;transition:opacity .4s,box-shadow .4s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#hint0{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:13px;color:var(--muted);background:rgba(14,16,18,.8);
+  padding:5px 12px;border-radius:99px;pointer-events:none;white-space:nowrap;transition:opacity .6s}
+
+/* sheet */
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:20;
+  padding:calc(10px + var(--st)) max(10px,var(--sr)) calc(10px + var(--sb)) max(10px,var(--sl))}
+#sheetCard{background:var(--panel);border:1px solid var(--line);border-radius:16px;width:min(680px,100%);max-height:100%;display:flex;flex-direction:column;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);overflow:hidden}
+#sheetHead{display:flex;align-items:center;gap:8px;padding:10px 10px 8px 16px;border-bottom:1px solid var(--line)}
+#sheetHead h2{margin:0;flex:1;font-family:var(--f-cond);font-size:21px;font-weight:600;letter-spacing:.01em}
+#sheetBody{overflow:auto;padding:12px 16px 16px;line-height:1.5;-webkit-user-select:text;user-select:text}
+#sheetBody h4{margin:14px 0 4px;font-family:var(--f-cond);font-size:17px;color:var(--brass);font-weight:600;letter-spacing:.02em}
+#sheetBody p{margin:0 0 8px} #sheetBody ul{margin:0 0 8px;padding-left:20px}
+.list{display:flex;flex-direction:column;gap:6px}
+.list button{display:flex;justify-content:space-between;align-items:center;height:auto;min-height:44px;padding:8px 12px;text-align:left;white-space:normal;gap:10px}
+.list button .s{color:var(--muted);font-size:13px;flex:none}
+.list button.cur{border-color:var(--brass)}
+.list button .tick{color:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{height:38px;min-width:58px;font-family:var(--f-cond);font-size:18px}
+.chips button[aria-pressed="true"]{background:#2c2410;border-color:var(--brass);color:var(--brass)}
+.set{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.set .d{color:var(--muted);font-size:13px}
+.tog{width:52px;height:30px;border-radius:99px;padding:0;position:relative;background:#30363b;flex:none}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#cfd3d6;transition:transform .15s}
+.tog[aria-pressed="true"]{background:var(--brass)} .tog[aria-pressed="true"]::after{transform:translateX(22px)}
+table.res{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px}
+table.res td,table.res th{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left}
+table.res th{color:var(--muted);font-weight:500}
+.big{font-family:var(--f-cond);font-size:44px;font-weight:600;color:var(--brass);line-height:1}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+body[data-mode="expert"] #panel{display:none}
+body:not([data-mode="expert"]) #xbtns{display:none}
+
+/* Always landscape: when the phone is upright (or rotation-locked), turn the whole app sideways.
+   Safe-area insets are re-mapped to the rotated edges. */
+@media (orientation:portrait){
+  body:not(.upright){--sl:env(safe-area-inset-top,0px);--sr:env(safe-area-inset-bottom,0px);--st:0px;--sb:env(safe-area-inset-left,0px)}
+  body:not(.upright) #app{inset:auto;top:0;left:0;width:var(--vh,100vh);height:var(--vw,100vw);transform-origin:0 0;transform:translateX(var(--vw,100vw)) rotate(90deg)}
+}
+#orientBtn{display:none}
+@media (orientation:portrait){#orientBtn{display:inline-grid}}
+body.upright #orientBtn svg{transform:rotate(90deg)}
+#xbtns svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#xbtns button.lit,#xbtns button:active{opacity:1;box-shadow:0 0 18px rgba(243,196,99,.55)}
+/* upright view: narrow panel */
+body.upright #headRow{flex-wrap:wrap}
+body.upright #ctx{order:5;flex-basis:100%}
+body.upright #flipTxt{display:none}
+body.upright .keypad{grid-template-columns:repeat(7,minmax(0,1fr))}
+body.upright #quizRow{flex-wrap:wrap}
+body.upright #quizRow .acts{flex-basis:100%}
+body.upright #quizRow .acts button{flex:1}
+body.upright #learnUI{flex-wrap:wrap}
+body.upright #stepText{flex-basis:100%;max-height:7.5em;font-size:15px}
+body.upright .nav{flex-basis:100%} body.upright .nav button{flex:1}
+@media (prefers-reduced-motion:reduce){ .ans.blink::after{animation:none} }
+</style>
+</head>
+<body data-mode="learn">
+<div id="app">
+  <div id="stage">
+    <canvas id="rule" aria-label="Slide rule. Drag to move the rule or the slide."></canvas>
+    <div id="probe"></div>
+    <div id="caption" hidden></div>
+    <div id="hint0" hidden>Drag a fixed strip to move the rule · drag the middle strip to move the slide · swipe up or down to flip · pinch to zoom</div>
+    <div id="xbtns">
+      <button id="xMenu" aria-label="Back to Learn"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg></button>
+    </div>
+    <div id="bubble" hidden></div>
+  </div>
+  <div id="panel">
+    <div class="row" id="headRow">
+      <div class="seg" role="tablist" aria-label="Mode">
+        <button data-mode="learn">Learn</button><button data-mode="practice">Practice</button><button data-mode="test">Test</button><button data-mode="expert">Expert</button>
+      </div>
+      <div id="ctx">
+        <div id="ctxLearn" class="row" style="flex:1;min-width:0">
+          <button id="lessonBtn"></button><span id="stepNo"></span><span id="tryChip" class="chip" hidden></span>
+        </div>
+        <div id="ctxQuiz" class="row" style="flex:1;min-width:0" hidden>
+          <button id="topicsBtn">Topics</button>
+          <span id="tMeta" class="meta" hidden></span>
+          <div id="qText" class="q"></div>
+          <div id="qAns" class="ans blink"></div>
+          <div id="qFb" class="fb"></div>
+        </div>
+      </div>
+      <button id="flipBtn" aria-label="Flip the rule over"><span class="flipLbl">⟲<span id="flipTxt"> Show back</span></span></button>
+      <button id="orientBtn" class="icon" aria-label="Switch between sideways and upright view"><svg class="i" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10.5 18.5h3"/></svg></button>
+      <button id="gearBtn" class="icon" aria-label="Settings"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+    <div class="row" id="learnUI">
+      <p id="stepText"></p>
+      <div class="nav">
+        <button id="prevBtn" aria-label="Previous step">‹</button>
+        <button id="moreBtn">More</button>
+        <button id="showBtn">Show me</button>
+        <button id="nextBtn" class="primary">Next ›</button>
+      </div>
+    </div>
+    <div class="row" id="quizRow" hidden>
+      <div class="keypad" id="keypad"></div>
+      <div class="acts" style="display:flex;gap:6px">
+        <button id="qHint" class="act">Hint</button>
+        <button id="qShow" class="act">Show me</button>
+        <button id="qSkip" class="act" hidden>Skip</button>
+        <button id="qCheck" class="act primary">Check</button>
+      </div>
+    </div>
+  </div>
+<div id="sheet" hidden>
+  <div id="sheetCard" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div id="sheetHead"><h2 id="sheetTitle"></h2><button id="sheetClose">Done</button></div>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+</div>
+
+<script src="textures.js"></script>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const L10=Math.log10, LN=Math.log, PI=Math.PI, E=Math.E, DEG=PI/180;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v, mod1=x=>x-Math.floor(x);
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* =====================================================================
+   SCALES — modeled on the K&E 4081-3 Log Log Duplex Decitrig (20 scales)
+   x is the position along the scale, 0 = left index, 1 = right index.
+   ===================================================================== */
+const SC={};
+const R=(from,to,steps)=>({from,to,steps});
+const lz=v=>String(v).replace(/^0\./,'.');
+const sub12=()=>[1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9].map(v=>({v,t:String(Math.round((v-1)*10)),tier:1,sm:1}));
+const D19=()=>[1,2,3,4,5,6,7,8,9].map(v=>({v,t:String(v)}));
+function trigLabs(list,lowTier=[]){
+  const out=[];
+  list.forEach(th=>{
+    const tier=lowTier.includes(th)?1:0;
+    if(th===90||th===45){out.push({v:th,t:String(th),tier});return;}
+    out.push({v:th,t:String(th),pos:'r',tier});
+    out.push({v:th,t:String(+(90-th).toFixed(1)),pos:'l',ink:'r',sm:1,tier});
+  });
+  return out;
+}
+function scale(name,o){
+  o.name=name;o.ink=o.ink||'k';o.labels=o.labels||[];o.extra=o.extra||[];
+  const ticks=[],seen=new Set();
+  const push=(x,lv,ri)=>{const k=Math.round(x*1e7);if(seen.has(k))return;seen.add(k);ticks.push({x,lv,ri});};
+  o.ranges.forEach((r,ri)=>{
+    const fine=r.steps[r.steps.length-1], mult=r.steps.map(s=>Math.round(s/fine));
+    const k0=Math.ceil(r.from/fine-1e-6), k1=Math.floor(r.to/fine+1e-6);
+    for(let k=k0;k<=k1;k++){
+      const x=o.f(k*fine); if(!isFinite(x))continue;
+      let lv=mult.findIndex(m=>k%m===0); if(lv<0)lv=mult.length-1;
+      push(x,lv,ri);
+      if(o.folded){ if(x<0.035)push(x+1,lv,ri); if(x>0.965)push(x-1,lv,ri); }
+    }
+  });
+  o.extra.forEach(e=>push(e.x!==undefined?e.x:o.f(e.v),e.lv,-1));
+  ticks.sort((a,b)=>a.x-b.x);
+  o.ticks=ticks;
+  const by={};ticks.forEach(t=>(by[t.ri]=by[t.ri]||[]).push(t));
+  o.gap={};
+  for(const ri in by){
+    const arr=by[ri],mx=Math.max(...arr.map(t=>t.lv));o.gap[ri]=[];
+    for(let L=0;L<=mx;L++){let p=null,g=Infinity;for(const t of arr)if(t.lv<=L){if(p!==null)g=Math.min(g,t.x-p);p=t.x;}o.gap[ri][L]=ri==='-1'?Infinity:g;}
+  }
+  o.labs=o.labels.map(l=>({...l,x:l.x!==undefined?l.x:o.f(l.v),tier:l.tier||0}));
+  SC[name]=o;return o;
+}
+const LOGR=[R(1,2,[1,.5,.1,.05,.01]),R(2,4,[1,.5,.1,.02]),R(4,10,[1,.5,.1,.05])];
+const CDLAB=[...D19(),{v:10,t:'1'},...sub12(),{v:PI,t:'π',sm:1}];
+const FOLD=L10(PI);
+const lin=x=>10**x;
+scale('D',{f:L10,inv:lin,ranges:LOGR,labels:CDLAB,extra:[{v:PI,lv:1}]});
+scale('C',{f:L10,inv:lin,ranges:LOGR,labels:CDLAB,extra:[{v:PI,lv:1}]});
+scale('CI',{f:v=>1-L10(v),inv:x=>10**(1-x),ranges:LOGR,labels:CDLAB,extra:[{v:PI,lv:1}],ink:'r'});
+const FLAB=[...D19(),...sub12(),{x:0,t:'π'},{x:1,t:'π'}];
+scale('DF',{f:v=>mod1(L10(v)-FOLD),inv:x=>PI*10**x,folded:1,ranges:LOGR,labels:FLAB,extra:[{x:0,lv:0},{x:1,lv:0}]});
+scale('CF',{f:v=>mod1(L10(v)-FOLD),inv:x=>PI*10**x,folded:1,ranges:LOGR,labels:FLAB,extra:[{x:0,lv:0},{x:1,lv:0}]});
+scale('CIF',{f:v=>mod1(1-L10(v)-FOLD),inv:x=>10/(PI*10**x),folded:1,ranges:LOGR,labels:[...D19(),...sub12()],ink:'r'});
+const AR=[R(1,2,[1,.5,.1,.02]),R(2,5,[1,.5,.1,.05]),R(5,10,[1,.5,.1]),R(10,20,[10,5,1,.2]),R(20,50,[10,5,1,.5]),R(50,100,[10,5,1])];
+const ALAB=[...D19(),...[1,2,3,4,5,6,7,8,9].map(v=>({v:v*10,t:String(v)})),{v:100,t:'1'}];
+scale('A',{f:v=>L10(v)/2,inv:x=>10**(2*x),ranges:AR,labels:ALAB,extra:[{v:PI,lv:2}]});
+scale('B',{f:v=>L10(v)/2,inv:x=>10**(2*x),ranges:AR,labels:ALAB,extra:[{v:PI,lv:2}]});
+const KR=[R(1,3,[1,.5,.1,.05]),R(3,6,[1,.5,.1]),R(6,10,[1,.2]),R(10,30,[10,5,1,.5]),R(30,60,[10,5,1]),R(60,100,[10,2]),R(100,300,[100,50,10,5]),R(300,600,[100,50,10]),R(600,1000,[100,20])];
+const KLAB=[...D19(),...[1,2,3,4,5,6,7,8,9].map(v=>({v:v*10,t:String(v)})),...[1,2,3,4,5,6,7,8,9].map(v=>({v:v*100,t:String(v)})),{v:1000,t:'1'}];
+scale('K',{f:v=>L10(v)/3,inv:x=>10**(3*x),ranges:KR,labels:KLAB});
+scale('L',{f:v=>v,inv:x=>x,ranges:[R(0,1,[.1,.05,.01,.002])],labels:[{v:0,t:'0'},...[1,2,3,4,5,6,7,8,9].map(k=>({v:k/10,t:'.'+k})),{v:1,t:'1.0'}]});
+// trig, decimal degrees
+scale('S',{f:t=>L10(10*Math.sin(t*DEG)),inv:x=>Math.asin(clamp(10**x/10,0,1))/DEG,
+  ranges:[R(5.8,10,[1,.5,.1]),R(10,20,[5,1,.5,.1]),R(20,30,[5,1,.2]),R(30,60,[10,5,1,.5]),R(60,70,[10,5,1]),R(70,80,[10,5]),R(80,90,[10,5])],
+  labels:trigLabs([6,7,8,9,10,15,20,25,30,40,50,60,70,80,90],[7,9,25,70,80])});
+scale('T',{f:t=>L10(10*Math.tan(t*DEG)),inv:x=>Math.atan(10**x/10)/DEG,
+  ranges:[R(5.8,10,[1,.5,.1]),R(10,20,[5,1,.5,.1]),R(20,45,[5,1,.2])],
+  labels:trigLabs([6,7,8,9,10,15,20,25,30,35,40,45],[7,9])});
+scale('ST',{f:t=>L10(100*t*DEG),inv:x=>(10**x/100)/DEG,
+  ranges:[R(.58,1,[.1,.05,.01]),R(1,2,[1,.5,.1,.05,.01]),R(2,4,[1,.5,.1,.02]),R(4,5.7,[1,.5,.1,.05])],
+  labels:[.6,.7,.8,.9,1,1.5,2,2.5,3,4,5].map(v=>({v,t:lz(v),tier:(v===2.5||v===.7||v===.9)?1:0}))});
+// log-log: e^x for x on D
+const LLs=(n,k,sign)=>({f:v=>L10(sign*k*LN(v)),inv:x=>Math.exp(sign*10**x/k)});
+scale('LL3',{...LLs('LL3',1,1),ranges:[R(2.75,4,[1,.5,.1,.05]),R(4,6,[1,.5,.1]),R(6,10,[5,1,.5,.1]),R(10,20,[10,5,1,.5]),R(20,50,[10,5,1]),R(50,100,[50,10,5]),R(100,200,[100,50,10]),R(200,500,[100,50,10]),R(500,1000,[500,100,50]),R(1000,2000,[1000,500,100]),R(2000,5000,[1000,500]),R(5000,10000,[5000,1000,500]),R(10000,22000,[10000,5000,1000])],
+  labels:[{v:E,t:'e'},...[3,4,5,6,7,8,9,10,15,20,30,40,50,100,200,500,1000,2000,5000,10000,20000].map(v=>({v,t:String(v)})),...[3.5,4.5,25,300,3000].map(v=>({v,t:String(v),tier:1}))],extra:[{v:E,lv:0}]});
+scale('LL2',{...LLs('LL2',10,1),ranges:[R(1.106,1.2,[.05,.01,.005,.001]),R(1.2,1.4,[.1,.05,.01,.002]),R(1.4,1.8,[.1,.05,.01,.005]),R(1.8,2.71,[1,.1,.05,.01])],
+  labels:[...[1.11,1.15,1.2,1.25,1.3,1.35,1.4,1.5,1.6,1.7,1.8,1.9,2,2.5].map(v=>({v,t:String(v)})),{v:E,t:'e'},...[1.12,1.13,1.14,1.16,1.17,1.18,1.19,1.45,2.2].map(v=>({v,t:String(v),tier:1}))],extra:[{v:E,lv:0}]});
+scale('LL1',{...LLs('LL1',100,1),ranges:[R(1.0101,1.02,[.005,.001,.0005,.0001]),R(1.02,1.04,[.01,.005,.001,.0002]),R(1.04,1.07,[.01,.005,.001,.0005]),R(1.07,1.105,[.01,.005,.001,.0005])],
+  labels:[...[1.01,1.015,1.02,1.025,1.03,1.04,1.05,1.06,1.07,1.08,1.09,1.10].map(v=>({v,t:v===1.1?'1.10':String(v)})),...[1.011,1.012,1.013,1.014,1.035,1.045].map(v=>({v,t:String(v),tier:1}))]});
+scale('LL01',{...LLs('LL01',100,-1),ranges:[R(.98,.99,[.005,.001,.0005,.0001]),R(.96,.98,[.01,.005,.001,.0002]),R(.905,.96,[.01,.005,.001,.0005])],
+  labels:[...[.99,.985,.98,.975,.97,.96,.95,.94,.93,.92,.91].map(v=>({v,t:lz(v)})),...[.989,.988,.987,.986,.965,.955].map(v=>({v,t:lz(v),tier:1}))],labInk:'r'});
+scale('LL02',{...LLs('LL02',10,-1),ranges:[R(.85,.904,[.05,.01,.005,.001]),R(.8,.85,[.05,.01,.005,.001]),R(.7,.8,[.05,.01,.002]),R(.5,.7,[.1,.05,.01,.005]),R(.37,.5,[.1,.05,.01,.005])],
+  labels:[...[.90,.88,.86,.84,.82,.80,.75,.70,.65,.60,.55,.50,.45,.40].map(v=>({v,t:v.toFixed(2).slice(1)})),...[.89,.87,.85,.83,.81].map(v=>({v,t:lz(v),tier:1}))],labInk:'r'});
+scale('LL03',{...LLs('LL03',1,-1),ranges:[R(.2,.36,[.05,.01,.005]),R(.1,.2,[.05,.01,.002]),R(.05,.1,[.05,.01,.005,.001]),R(.02,.05,[.01,.005,.001]),R(.01,.02,[.01,.005,.001,.0005]),R(.005,.01,[.005,.001,.0002]),R(.002,.005,[.001,.0005,.0001]),R(.001,.002,[.001,.0005,.0001,.00005]),R(.0005,.001,[.0005,.0001,.00005]),R(.0002,.0005,[.0001,.00005,.00001]),R(.0001,.0002,[.0001,.00005,.00001]),R(.00005,.0001,[.00005,.00001])],
+  labels:[...[.35,.30,.25,.20,.15,.10,.05,.04,.03,.02,.01,.005,.002,.001,.0005,.0002,.0001].map(v=>({v,t:v>=.1?v.toFixed(2).slice(1):lz(v)})),...[.08,.07,.06,.003].map(v=>({v,t:lz(v),tier:1}))],labInk:'r'});
+
+const FACES={
+  front:{top:['LL02','LL03','DF'],slide:['CF','CIF','CI','C'],bot:['D','LL3','LL2']},
+  back:{top:['LL01','K','A'],slide:['B','T','ST','S'],bot:['D','L','LL1']}
+};
+const SLIDE=new Set(['CF','CIF','CI','C','B','T','ST','S']);
+const RANGE_TXT={LL02:'−0.1 to −1.0',LL03:'−1.0 to −10.0',LL3:'1.0 to 10.0',LL2:'0.1 to 1.0',LL01:'−0.01 to −0.1',LL1:'0.01 to 0.1',T:['10.0 to 1.0','0.1 to 1.0'],ST:'0.01 to 0.1',S:'0.1 to 1.0'};
+const RED_NAME=new Set(['CI','CIF','LL01','LL02','LL03']);
+
+/* plain-language reference for each scale (tap a name) */
+const INFO={
+  D:['D — the main scale','<p>The fixed reference scale on the body, logarithmic from 1 to 10. Nearly every answer is read here. It appears on both faces and lines up exactly through the cursor.</p><p class="fx">position = log x</p>'],
+  C:['C — the slide twin of D','<p>Identical to D but on the slide. Moving C along D adds or subtracts logarithms, which multiplies or divides.</p><p class="fx">a × b: index of C on a (D) → hairline to b (C) → read D</p>'],
+  CI:['CI — C inverted (red)','<p>C running right to left. A number on C sits over its reciprocal on CI. Use it for 1/x, or to multiply by dividing: a × b = a ÷ (1/b).</p><p class="fx">CI = 1 / C</p>'],
+  CF:['CF — C folded at π','<p>C shifted so it starts and ends at π, with its 1 in the middle. Multiply on CF/DF exactly like C/D. Handy when an answer would run off the end of D.</p><p class="fx">CF = π × C</p>'],
+  DF:['DF — D folded at π','<p>D shifted by π. Any number on D sits under π times itself on DF: circle diameter on D, circumference on DF.</p><p class="fx">DF = π × D</p>'],
+  CIF:['CIF — CF inverted (red)','<p>Reciprocal of CF. Useful for chained multiplication on the folded scales and for 1/(πx).</p><p class="fx">CIF = 1 / CF</p>'],
+  A:['A — squares','<p>Two compressed copies of D, 1–10 and 10–100, on the body. D squared appears on A; A square-rooted appears on D.</p><p class="fx">A = D²</p><p>For square roots, use the left half for numbers with an odd count of digits (1–9, 100–999) and the right half for an even count (10–99).</p>'],
+  B:['B — squares on the slide','<p>Same as A but on the slide, so you can multiply by a squared quantity, e.g. πr².</p><p class="fx">B = C²</p>'],
+  K:['K — cubes','<p>Three compressed copies of D: 1–10, 10–100, 100–1000.</p><p class="fx">K = D³</p><p>For cube roots, group digits by threes from the decimal point: one digit in the lead group → left third, two → middle, three → right.</p>'],
+  L:['L — common logarithms','<p>An evenly divided scale from 0 to 1. With the hairline on a number on D, L gives the decimal part of its base-10 log. You add the whole-number part by counting digits.</p><p class="fx">L = log₁₀ D</p>'],
+  S:['S — sines (black) and cosines (red)','<p>Decimal degrees from 5.74° to 90°. With the slide centered, read the sine on D as 0.1–1.0. Red numbers are the complements: red 60 is the cosine of 60°.</p><p class="fx">D = 10 · sin θ</p>'],
+  T:['T — tangents','<p>5.71° to 45° gives tangents 0.1–1.0 on D (slide centered). Red numbers are complements: for angles above 45°, tan θ = 1/tan(90°−θ), read on CI on the front face.</p><p class="fx">D = 10 · tan θ</p>'],
+  ST:['ST — small angles','<p>Below about 5.7° sine and tangent are nearly equal to the angle in radians. ST covers 0.573° to 5.73°, read on D as 0.01–0.1. Also converts degrees to radians.</p><p class="fx">D = 100 · θ (radians)</p>'],
+  LL1:['LL1 — e^x, x from 0.01 to 0.1','<p>1.0101 to 1.105. Hairline on x on D gives e^(x/100)... more simply: with D read as 0.01–0.1, LL1 shows eˣ. Good for small growth rates like 1.05ⁿ.</p>'],
+  LL2:['LL2 — e^x, x from 0.1 to 1.0','<p>1.105 to e (2.718). Read D as 0.1–1.0. Natural logs go the other way: hairline on a value here, read ln on D.</p>'],
+  LL3:['LL3 — e^x, x from 1 to 10','<p>e to about 22,000. Read D as 1–10. Use with C to raise numbers to powers: y^p.</p>'],
+  LL01:['LL01 — e^−x, x from 0.01 to 0.1 (red)','<p>0.990 to 0.905. The reciprocal of LL1 under the same hairline. Useful for depreciation and decay.</p>'],
+  LL02:['LL02 — e^−x, x from 0.1 to 1.0 (red)','<p>0.905 to 0.368 (1/e). The reciprocal of LL2 under the same hairline.</p>'],
+  LL03:['LL03 — e^−x, x from 1 to 10 (red)','<p>0.368 down to 0.00005. The reciprocal of LL3 under the same hairline.</p>']
+};
+INFO.LL1[1]='<p>From 1.0101 to 1.105. With D read as 0.01 to 0.1, LL1 shows eˣ under the hairline. Good for small growth rates such as 1.05ⁿ. It lives on the back face.</p>';
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+const ZOOM_DEF={learn:1.3,practice:1.3,test:1.3,expert:2.4};
+const st={mode:'learn',face:'front',xc:0.5,s:0};
+let zoom={...ZOOM_DEF};
+const ZOOMU_DEF={learn:.8,practice:.8,test:.8,expert:.95};let zoomU={...ZOOMU_DEF};
+const settings={readLearn:true,readPractice:false,names:true,hair:'black',flickFlip:true,upright:false,hint0:true};
+const prog={lesson:0,step:0,done:{}};
+let best={}; let cats=['mul','div'];
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem('decitrig.v1')||'null'); if(!d)return;
+    Object.assign(st,d.st||{}); Object.assign(zoom,d.zoom||{});Object.assign(zoomU,d.zoomU||{}); Object.assign(settings,d.settings||{});
+    Object.assign(prog,d.prog||{}); best=d.best||{}; if(Array.isArray(d.cats)&&d.cats.length)cats=d.cats;
+    if(!FACES[st.face])st.face='front';
+  }catch(e){}
+}
+function save(){ try{localStorage.setItem('decitrig.v1',JSON.stringify({st,zoom,zoomU,settings,prog,best,cats}));}catch(e){} }
+
+/* =====================================================================
+   CANVAS + GEOMETRY
+   Vertical layout follows the photographed rule: face rows v = 0..320,
+   slide between v 98.5 and 207.5 (same on both faces).
+   ===================================================================== */
+const cv=$('#rule'), ctx=cv.getContext('2d');
+const view={w:0,h:0,dpr:1,sl:0,sr:0};
+let hl=new Set(), marks=[];
+let flipK=1;
+function measure(){
+  const de=document.documentElement.style;de.setProperty('--vw',innerWidth+'px');de.setProperty('--vh',innerHeight+'px');
+  const sg=$('#stage');
+  view.w=Math.max(1,sg.clientWidth);view.h=Math.max(1,sg.clientHeight);view.dpr=Math.min(3,window.devicePixelRatio||1);
+  cv.width=Math.round(view.w*view.dpr);cv.height=Math.round(view.h*view.dpr);
+  const cs=getComputedStyle($('#probe'));view.sl=parseFloat(cs.paddingLeft)||0;view.sr=parseFloat(cs.paddingRight)||0;
+  invalidate();
+}
+/* upright view: the rule fills the screen height at its natural proportions (length ≈ 6.8 × face height) */
+const ruleHeight=()=>{const H=view.h,m=clamp(H*0.055,14,26);return isUp()?Math.max(60,H-2*m-6):Math.min(H-2*m-6,470);};
+const Z=()=>isUp()?zoomU:zoom;
+const Lpx=()=>isUp()?zoomU[st.mode]*ruleHeight()*6.8:zoom[st.mode]*Math.max(view.w,640);
+const VF=301,VS0=98.5,VS1=207.5,VEDGE=312;
+function geom(){
+  const H=view.h, m=clamp(H*0.055,14,26);
+  const ruleH=ruleHeight(), top=Math.round((H-ruleH)/2), k=ruleH/VF;
+  const vy=v=>top+v*k;
+  const slideTop=vy(VS0),slideBot=vy(VS1),bot=vy(VF);
+  const f=FACES[st.face],rows=[];
+  const band=(names,y0,y1,side,slide)=>{const h=(y1-y0)/names.length;names.forEach((n,i)=>rows.push({name:n,y:y0+i*h,h,side:typeof side==='function'?side(i):side,slide}));};
+  band(f.top,top,slideTop,'up',false);
+  band(f.slide,slideTop,slideBot,i=>i<2?'down':'up',true);
+  band(f.bot,slideBot,bot,'down',false);
+  return {top,bot,slideTop,slideBot,rowH:ruleH/10,m,rows,k,vy};
+}
+const X=(x)=>view.w/2+(x-st.xc)*Lpx();
+
+/* photo textures (from textures.js) */
+const TEX={};let TEXM={},deskPat=null;
+function loadTex(){
+  const S=window.SR_TEX;if(!S)return;TEXM=S.meta;
+  for(const k in S.img){const im=new Image();im.onload=()=>{if(k==='desk')deskPat=null;invalidate();};im.src=S.img[k];TEX[k]=im;}
+}
+const ready=k=>TEX[k]&&TEX[k].complete&&TEX[k].naturalWidth>0;
+/* draw part of a texture: fractions clipped to [c0,c1], rows clipped to [vA,vB] (face v units), offset by slide */
+function drawTex(key,off,G,c0,c1,vA,vB){
+  if(!ready(key))return false;
+  const im=TEX[key],mt=TEXM[key],L=Lpx(),cx=view.w/2;
+  vA=vA??mt.v0;vB=vB??mt.v1;
+  const f0=Math.max(mt.f0,c0??-9,st.xc-cx/L-off-.002),f1=Math.min(mt.f1,c1??9,st.xc+(view.w-cx)/L-off+.002);
+  if(f1<=f0)return true;
+  const kx=im.naturalWidth/(mt.f1-mt.f0),ky=im.naturalHeight/(mt.v1-mt.v0);
+  ctx.drawImage(im,(f0-mt.f0)*kx,(vA-mt.v0)*ky,(f1-f0)*kx,(vB-vA)*ky,cx+(f0+off-st.xc)*L,G.vy(vA),(f1-f0)*L,G.vy(vB)-G.vy(vA));
+  return true;
+}
+/* fine celluloid grain so the enlarged photo stays crisp */
+let grain=null;
+function makeGrain(){
+  const c=document.createElement('canvas');c.width=c.height=192;const g=c.getContext('2d');const id=g.createImageData(192,192);
+  for(let i=0;i<id.data.length;i+=4){const v=Math.random()<.5?0:255;id.data[i]=id.data[i+1]=id.data[i+2]=v;id.data[i+3]=Math.random()*9;}
+  g.putImageData(id,0,0);grain=ctx.createPattern(c,'repeat');
+}
+const INK='#1f1c19', RED='#b42c1f', MARK='#1767c2';
+const LEN=[.5,.4,.32,.25,.19];
+const FONT=(px,w=500)=>`${w} ${px.toFixed(1)}px "Barlow Condensed","Avenir Next Condensed","Arial Narrow",sans-serif`;
+const BODY=[-0.072,1.07], SLIDE_EXT=[-0.13,1.13];
+
+/* end gussets: drawn, not photographed. Outline measured from the photos;
+   the front has its foot at the bottom, the back at the top; right mirrors left. */
+let brushPat=null;
+function makeBrush(){
+  const c=document.createElement('canvas');c.width=512;c.height=6;const g=c.getContext('2d');
+  for(let x=0;x<512;x++){const v=Math.random();g.fillStyle=v<.5?`rgba(255,255,255,${(.5-v)*.5})`:`rgba(0,0,0,${(v-.5)*.28})`;g.fillRect(x,0,1,6);}
+  brushPat=ctx.createPattern(c,'repeat');
+}
+function roundPoly(pts){
+  const p=new Path2D(),n=pts.length,a=pts[n-1],b=pts[0];p.moveTo((a[0]+b[0])/2,(a[1]+b[1])/2);
+  for(let i=0;i<n;i++){const c=pts[i],nx=pts[(i+1)%n];p.arcTo(c[0],c[1],nx[0],nx[1],c[2]);}
+  p.closePath();return p;
+}
+function rivet(x,y,r){
+  const g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,'#fbf8ee');g.addColorStop(.45,'#cfcab8');g.addColorStop(1,'#7f7b6c');
+  ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.arc(x+.8,y+1.2,r,0,7);ctx.fill();
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(60,58,50,.6)';ctx.lineWidth=.7;ctx.stroke();
+}
+function screw(x,y,r){
+  const g=ctx.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);g.addColorStop(0,'#f2f3f1');g.addColorStop(1,'#8a8f90');
+  ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.arc(x+.8,y+1.2,r,0,7);ctx.fill();
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+  ctx.strokeStyle='rgba(50,52,54,.65)';ctx.lineWidth=.8;ctx.stroke();
+  const a=-0.5,dx=Math.cos(a)*r*.82,dy=Math.sin(a)*r*.82;
+  ctx.strokeStyle='rgba(30,30,30,.8)';ctx.lineWidth=Math.max(1.2,r*.22);ctx.beginPath();ctx.moveTo(x-dx,y-dy);ctx.lineTo(x+dx,y+dy);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(x-dx+.6,y-dy+1);ctx.lineTo(x+dx+.6,y+dy+1);ctx.stroke();
+}
+function drawGusset(sd,G){
+  const back=st.face==='back',m=f=>sd==='L'?f:1-f;
+  const xo=X(m(-0.1315)),xa=X(m(-0.0995)),xb=X(m(-0.0695));
+  if(Math.max(xo,xa,xb)<-20||Math.min(xo,xa,xb)>view.w+20)return;
+  const yT=G.vy(.5),yB=G.vy(303),yF=back?G.vy(92):G.vy(208.5);
+  const bw=Math.abs(xb-xa),rr=Math.min(5,bw*.14),rf=Math.min(bw*.5,Math.abs(xo-xa)*.9);
+  const pts=back?[[xo,yT,rr],[xb,yT,rr],[xb,yB,rr],[xa,yB,rr],[xa,yF,rf],[xo,yF,rr]]
+                :[[xa,yT,rr],[xb,yT,rr],[xb,yB,rr],[xo,yB,rr],[xo,yF,rr],[xa,yF,rf]];
+  const path=roundPoly(pts),x0=Math.min(xo,xa,xb),x1=Math.max(xo,xa,xb);
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=7;ctx.shadowOffsetX=2;ctx.shadowOffsetY=3;
+  const g=ctx.createLinearGradient(x0,0,x1,0);
+  g.addColorStop(0,'#9fa6ab');g.addColorStop(.3,'#dfe3e6');g.addColorStop(.55,'#c5cbcf');g.addColorStop(.8,'#e9ecee');g.addColorStop(1,'#a3aaaf');
+  ctx.fillStyle=g;ctx.fill(path);ctx.restore();
+  ctx.save();ctx.clip(path);
+  if(brushPat){ctx.fillStyle=brushPat;ctx.fillRect(x0,yT,x1-x0,yB-yT);}
+  const sh=ctx.createLinearGradient(0,yT,0,yB);sh.addColorStop(0,'rgba(255,255,255,.28)');sh.addColorStop(.25,'rgba(255,255,255,0)');sh.addColorStop(.8,'rgba(0,0,0,0)');sh.addColorStop(1,'rgba(0,0,0,.18)');
+  ctx.fillStyle=sh;ctx.fillRect(x0,yT,x1-x0,yB-yT);
+  ctx.lineWidth=2.2;ctx.translate(.9,.9);ctx.strokeStyle='rgba(255,255,255,.7)';ctx.stroke(path);
+  ctx.translate(-1.8,-1.8);ctx.strokeStyle='rgba(0,0,0,.22)';ctx.stroke(path);
+  ctx.restore();
+  ctx.strokeStyle='rgba(35,38,42,.75)';ctx.lineWidth=.8;ctx.stroke(path);
+  const bc=(xa+xb)/2,fc=(xo+xa)/2,r=clamp(bw*.26,2.5,13);
+  if(back){rivet(fc,G.vy(24),r);rivet(bc,G.vy(56),r);rivet(bc,G.vy(282),r);}
+  else{screw(bc,G.vy(22),r*1.05);rivet(bc,G.vy(266),r);rivet(fc,G.vy(286),r);}
+}
+function draw(){
+  const {w,h,dpr}=view, L=Lpx(), cx=w/2;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  // desk (cropped from the owner's photo)
+  if(ready('desk')){if(!deskPat)deskPat=ctx.createPattern(TEX.desk,'repeat');ctx.fillStyle=deskPat;}else ctx.fillStyle='#121315';
+  ctx.fillRect(0,0,w,h);
+  const vg=ctx.createRadialGradient(cx,h/2,h*.25,cx,h/2,Math.max(w,h)*.75);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.55)');ctx.fillStyle=vg;ctx.fillRect(0,0,w,h);
+  const G=geom(), front=st.face, s=st.s;
+  ctx.save();
+  if(flipFrom!==null&&flipK!==1){const c=(G.top+G.bot)/2,my=c+flipDir*Math.sin(flipP*PI)*(G.bot-G.top)*.1;ctx.translate(0,my);ctx.scale(1,Math.max(.02,Math.abs(flipK)));ctx.translate(0,-c);}
+  // cast shadows on the desk: stators, then slide
+  // (shapes are drawn far off-screen; only their shadows land here)
+  const OFF=20000;
+  ctx.save();ctx.shadowColor='rgba(0,0,0,.62)';ctx.shadowBlur=16;ctx.shadowOffsetX=4+OFF;ctx.shadowOffsetY=8;ctx.fillStyle='#000';
+  ctx.fillRect(X(-0.125)-OFF,G.top,X(1.125)-X(-0.125),G.slideTop-G.top);ctx.fillRect(X(-0.125)-OFF,G.slideBot,X(1.125)-X(-0.125),G.vy(VEDGE)-G.slideBot);
+  ctx.fillRect(X(SLIDE_EXT[0]+s)-OFF,G.slideTop,(SLIDE_EXT[1]-SLIDE_EXT[0])*L,G.slideBot-G.slideTop);
+  ctx.restore();
+  // body: the two stators only; the channel between them is open (a duplex frame)
+  const okB=drawTex(front+'_body',0,G,BODY[0],BODY[1],0,VS0)&&drawTex(front+'_body',0,G,BODY[0],BODY[1],VS1,VEDGE);
+  if(!okB){ctx.fillStyle='#ece2c3';ctx.fillRect(X(BODY[0]),G.top,(BODY[1]-BODY[0])*L,G.slideTop-G.top);ctx.fillRect(X(BODY[0]),G.slideBot,(BODY[1]-BODY[0])*L,G.bot-G.slideBot);}
+  // slide
+  if(!drawTex(front+'_slide',s,G,SLIDE_EXT[0],SLIDE_EXT[1])){ctx.fillStyle='#f3ead0';ctx.fillRect(X(SLIDE_EXT[0]+s),G.slideTop,(SLIDE_EXT[1]-SLIDE_EXT[0])*L,G.slideBot-G.slideTop);}
+  // slide end faces + seams against the stators
+  ctx.fillStyle='rgba(70,40,20,.55)';
+  ctx.fillRect(X(SLIDE_EXT[0]+s),G.slideTop,1,G.slideBot-G.slideTop);ctx.fillRect(X(SLIDE_EXT[1]+s)-1,G.slideTop,1,G.slideBot-G.slideTop);
+  const bx0=X(BODY[0]),bw=(BODY[1]-BODY[0])*L;
+  ctx.fillStyle='rgba(45,28,12,.55)';ctx.fillRect(bx0,G.slideTop-.5,bw,1);ctx.fillRect(bx0,G.slideBot-.5,bw,1);
+  ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(bx0,G.slideTop+.6,bw,.6);ctx.fillRect(bx0,G.slideBot+.6,bw,.6);
+  if(grain){ctx.globalAlpha=.5;ctx.fillStyle=grain;ctx.fillRect(bx0,G.top,bw,G.bot-G.top);ctx.globalAlpha=1;}
+  // printed ink, multiplied into the aged celluloid so stains show through
+  ctx.globalCompositeOperation='multiply';
+  for(const r of G.rows)drawRow(r,L,cx,w);
+  ctx.globalCompositeOperation='source-over';
+  drawMarks(G,L,cx);
+  // the real end brackets, cut from the photos
+  drawGusset('L',G);drawGusset('R',G);
+  if(flipK!==1){const a=(1-Math.abs(flipK))*.6,gr=ctx.createLinearGradient(0,G.top,0,G.bot);gr.addColorStop(0,`rgba(0,0,0,${a*(flipDir>0?1:.35)})`);gr.addColorStop(1,`rgba(0,0,0,${a*(flipDir>0?.35:1)})`);ctx.fillStyle=gr;ctx.fillRect(0,G.top-10,w,G.bot-G.top+20);}
+  ctx.restore();
+  drawCursor(G,L);
+  drawGutters(G,L);
+}
+function lowerBound(arr,x){let lo=0,hi=arr.length;while(lo<hi){const m=(lo+hi)>>1;if(arr[m].x<x)lo=m+1;else hi=m;}return lo;}
+function drawRow(r,L,cx,w){
+  const sc=SC[r.name],off=r.slide?st.s:0,dpr=view.dpr;
+  const xa=st.xc-cx/L-off-.02, xb=st.xc+(w-cx)/L-off+.02;
+  const base=r.side==='up'?r.y+r.h:r.y, dir=r.side==='up'?-1:1;
+  const ink=sc.ink==='r'?RED:INK;
+  if(hl.has(r.name)){ctx.fillStyle='rgba(255,196,90,.55)';const a=Math.max(0,X(-0.06+off)),b=Math.min(w,X(1.06+off));ctx.fillRect(a,r.y,b-a,r.h);}
+  ctx.strokeStyle=ink;ctx.lineWidth=.55;ctx.beginPath();ctx.moveTo(X(off),base+dir*.3);ctx.lineTo(X(1+off),base+dir*.3);ctx.stroke();
+  const T=sc.ticks;let i=lowerBound(T,xa);
+  const minor=new Path2D(),major=new Path2D();
+  for(;i<T.length&&T[i].x<=xb;i++){
+    const t=T[i],g=sc.gap[t.ri];
+    if(g&&g[t.lv]*L<2.3)continue;
+    const px=Math.round((cx+(t.x+off-st.xc)*L)*dpr)/dpr;
+    const p=t.lv===0?major:minor;
+    p.moveTo(px,base);p.lineTo(px,base+dir*r.h*LEN[Math.min(t.lv,4)]*(isUp()?.84:1));
+  }
+  ctx.lineWidth=dpr>=2?1.5/dpr:.9;ctx.stroke(minor);
+  ctx.lineWidth=dpr>=2?2.4/dpr:1.3;ctx.stroke(major);
+  const fs=Math.min(r.h*.4,isUp()?24:99), fss=Math.min(r.h*.31,isUp()?18:99);
+  ctx.textBaseline='middle';let cur='';
+  for(const lab of sc.labs){
+    if(lab.x<xa||lab.x>xb)continue;
+    if(lab.tier===1&&L<1500)continue;
+    const size=lab.sm?fss:fs, f=FONT(size,lab.sm?400:500);
+    if(f!==cur){ctx.font=f;cur=f;}
+    const px=cx+(lab.x+off-st.xc)*L;
+    const y=base+dir*(r.h*Math.min(LEN[0],isUp()?.42:1)+2+size*.52);
+    ctx.fillStyle=(lab.ink||sc.labInk||sc.ink)==='r'?RED:INK;
+    if(lab.pos==='r'){ctx.textAlign='left';ctx.fillText(lab.t,px+1.5,y);}
+    else if(lab.pos==='l'){ctx.textAlign='right';ctx.fillText(lab.t,px-1.5,y);}
+    else{ctx.textAlign='center';ctx.fillText(lab.t,px,y);}
+  }
+  ctx.font=FONT(Math.min(r.h*.46,isUp()?24:99),400);ctx.textAlign='right';ctx.fillStyle=RED_NAME.has(r.name)?RED:INK;
+  ctx.fillText(r.name.split('').join(String.fromCharCode(8202)),X(-0.014+off),r.y+r.h/2);
+  const rt=RANGE_TXT[r.name];
+  if(rt){ctx.font=FONT(r.h*.33,400);ctx.textAlign='left';ctx.fillStyle=INK;
+    if(Array.isArray(rt)){ctx.fillText(rt[0],X(1.012+off),r.y+r.h*.22);ctx.fillText(rt[1],X(1.012+off),r.y+r.h*.62);}
+    else ctx.fillText(rt,X(1.012+off),r.y+r.h/2);}
+}
+function drawMarks(G,L,cx){
+  for(const [name,v,txt] of marks){
+    const r=G.rows.find(q=>q.name===name);if(!r)continue;
+    let x=SC[name].f(v)+(r.slide?st.s:0);
+    const px=cx+(x-st.xc)*L;if(px<-20||px>view.w+20)continue;
+    ctx.fillStyle=MARK;ctx.globalAlpha=.85;ctx.fillRect(px-1.25,r.y+1,2.5,r.h-2);ctx.globalAlpha=1;
+    const up=r.side==='up', ty=up?r.y+r.h:r.y;
+    ctx.beginPath();ctx.moveTo(px,ty);ctx.lineTo(px-6,ty+(up?7:-7));ctx.lineTo(px+6,ty+(up?7:-7));ctx.closePath();ctx.fill();
+    if(txt){ctx.font=FONT(13,600);const tw=ctx.measureText(txt).width+12,ly=up?r.y+r.h+9:r.y-23;
+      ctx.fillStyle=MARK;roundRect(px-tw/2,ly,tw,16,8);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,px,ly+8.5);}
+  }
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function rrPath(p,x,y,w,h,r){p.moveTo(x+r,y);p.arcTo(x+w,y,x+w,y+h,r);p.arcTo(x+w,y+h,x,y+h,r);p.arcTo(x,y+h,x,y,r);p.arcTo(x,y,x+w,y,r);p.closePath();}
+/* the cursor: glass in a thin aluminum frame, proportioned like the original (about 1/8 of the scale length) */
+/* landscape: proportioned like the original (~1/8 of the scale length).
+   upright: 2/5 of the visible rule (the strip between the name and reading columns) */
+const glassW=()=>{
+  if(isUp()){const vis=view.w-(settings.names?view.sl+46:0)-(readoutsOn()?view.sr+80:0);return Math.max(56,vis*.4);}
+  return clamp(Lpx()*.118,96,300);
+};
+function drawCursor(G,L){
+  const dpr=view.dpr,cx=Math.round(view.w/2*dpr)/dpr,gw=glassW(),x0=cx-gw/2,x1=cx+gw/2;
+  const barH=clamp(G.m*.85,11,20), y0=G.top-barH-2, y1=G.bot+barH+2;
+  const rim=3, r=Math.min(14,gw*.12);
+  // soft shadow the cursor casts on the rule
+  ctx.save();ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=10;ctx.shadowOffsetX=3;ctx.shadowOffsetY=4;
+  const outer=new Path2D();rrPath(outer,x0-rim,y0,gw+2*rim,y1-y0,r);
+  const glass=new Path2D();rrPath(glass,x0,G.top-3,gw,G.bot-G.top+6,Math.min(10,r*.7));
+  const frame=new Path2D();frame.addPath(outer);frame.addPath(glass);
+  ctx.fillStyle='rgba(0,0,0,.001)';ctx.fill(frame,'evenodd');ctx.restore();
+  // glass body: faint tint, green edge refraction, specular sweep
+  ctx.save();ctx.clip(glass);
+  ctx.fillStyle='rgba(225,240,236,.07)';ctx.fillRect(x0,G.top-3,gw,G.bot-G.top+6);
+  const eL=ctx.createLinearGradient(x0,0,x0+7,0);eL.addColorStop(0,'rgba(90,140,120,.45)');eL.addColorStop(1,'rgba(90,140,120,0)');ctx.fillStyle=eL;ctx.fillRect(x0,G.top-3,7,G.bot-G.top+6);
+  const eR=ctx.createLinearGradient(x1,0,x1-7,0);eR.addColorStop(0,'rgba(90,140,120,.45)');eR.addColorStop(1,'rgba(90,140,120,0)');ctx.fillStyle=eR;ctx.fillRect(x1-7,G.top-3,7,G.bot-G.top+6);
+  const sp=ctx.createLinearGradient(x0,G.top,x1,G.bot);sp.addColorStop(0,'rgba(255,255,255,.13)');sp.addColorStop(.28,'rgba(255,255,255,0)');sp.addColorStop(.55,'rgba(255,255,255,0)');sp.addColorStop(.6,'rgba(255,255,255,.07)');sp.addColorStop(.7,'rgba(255,255,255,0)');
+  ctx.fillStyle=sp;ctx.fillRect(x0,G.top-3,gw,G.bot-G.top+6);
+  ctx.restore();
+  // aluminum frame
+  const mg=ctx.createLinearGradient(0,y0,0,y1);
+  mg.addColorStop(0,'#eef0f1');mg.addColorStop(.02,'#b9bfc3');mg.addColorStop(.035,'#8d9398');mg.addColorStop(.5,'#c6cbce');mg.addColorStop(.965,'#8d9398');mg.addColorStop(.98,'#c3c8cb');mg.addColorStop(1,'#6c7277');
+  ctx.fillStyle=mg;ctx.fill(frame,'evenodd');
+  ctx.strokeStyle='rgba(0,0,0,.45)';ctx.lineWidth=.8;ctx.stroke(outer);
+  ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=.6;ctx.stroke(glass);
+  // brushed lines on the bars
+  ctx.save();ctx.beginPath();ctx.rect(x0-rim,y0,gw+2*rim,G.top-3-y0);ctx.rect(x0-rim,G.bot+3,gw+2*rim,y1-G.bot-3);ctx.clip();
+  ctx.globalAlpha=.18;ctx.strokeStyle='#fff';ctx.lineWidth=.5;
+  for(let yy=y0+1.5;yy<y1;yy+=1.7){if(yy>G.top-3&&yy<G.bot+3)continue;ctx.beginPath();ctx.moveTo(x0-rim,yy);ctx.lineTo(x1+rim,yy+(((yy*7)%3)-1)*.3);ctx.stroke();}
+  ctx.restore();
+  // corner screws
+  const sr=clamp(barH*.26,2.6,4.6);
+  for(const [sx,sy] of [[x0+sr+3,(y0+G.top-3)/2],[x1-sr-3,(y0+G.top-3)/2],[x0+sr+3,(y1+G.bot+3)/2],[x1-sr-3,(y1+G.bot+3)/2]]){
+    const sg=ctx.createRadialGradient(sx-sr*.35,sy-sr*.35,sr*.2,sx,sy,sr);sg.addColorStop(0,'#e9e4d2');sg.addColorStop(1,'#7d7a6e');
+    ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx,sy,sr,0,7);ctx.fill();
+    ctx.strokeStyle='rgba(40,38,30,.75)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(sx-sr*.75,sy+sr*.2);ctx.lineTo(sx+sr*.75,sy-sr*.2);ctx.stroke();
+  }
+  // hairline, scribed on the underside of the glass, with its faint shadow
+  const hw=Math.max(.6,1.9/dpr);
+  ctx.fillStyle='rgba(0,0,0,.16)';ctx.fillRect(cx-hw/2+1.1,G.top-2,hw,G.bot-G.top+4);
+  ctx.fillStyle=settings.hair==='red'?'#c81e1e':'#151412';ctx.fillRect(cx-hw/2,G.top-2,hw,G.bot-G.top+4);
+}
+function readoutsOn(){return (st.mode==='learn'&&settings.readLearn)||(st.mode==='practice'&&settings.readPractice);}
+function drawGutters(G,L){
+  const w=view.w;if(flipFrom!==null)return;
+  if(settings.names){
+    const gwid=view.sl+46;let any=false;
+    const alphas=G.rows.map(r=>{const a=clamp((view.sl+70-X(-0.014+(r.slide?st.s:0)))/40,0,1);if(a>0)any=true;return a;});
+    if(any){
+      for(let i=0;i<G.rows.length;i++){const r=G.rows[i],a=alphas[i];if(!a)continue;
+        ctx.globalAlpha=a;ctx.fillStyle=hl.has(r.name)?'rgba(80,58,14,.94)':'rgba(16,18,20,.86)';ctx.fillRect(0,r.y,gwid,r.h+.5);
+        ctx.font=FONT(Math.min(17,r.h*.5),600);ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillStyle=hl.has(r.name)?'#f3c463':RED_NAME.has(r.name)?'#ff8f7f':'#ece5d3';
+        ctx.fillText(r.name,view.sl+23,r.y+r.h/2);}
+      ctx.globalAlpha=1;
+    }
+  }
+  if(readoutsOn()){
+    const rw=view.sr+80, x0=w-rw;
+    ctx.fillStyle='rgba(16,18,20,.86)';ctx.fillRect(x0,G.top-3,rw,G.bot-G.top+6);
+    for(const r of G.rows){
+      const v=read(r.name);
+      ctx.font=FONT(Math.min(18,r.h*.52),600);ctx.textAlign='right';ctx.textBaseline='middle';
+      ctx.fillStyle=hl.has(r.name)?'#f3c463':RED_NAME.has(r.name)?'#ff8f7f':'#ece5d3';
+      ctx.fillText(fmtRead(r.name,v),w-view.sr-8,r.y+r.h/2);
+      ctx.font=FONT(Math.min(11,r.h*.32),500);ctx.fillStyle='#7d8380';ctx.textAlign='left';ctx.fillText(r.name,x0+5,r.y+r.h*.3);
+    }
+  }
+}
+
+/* readings under the hairline */
+function posUnder(n){return st.xc-(SLIDE.has(n)?st.s:0);}
+function read(n){
+  const sc=SC[n];let x=posUnder(n);
+  if(sc.folded){if(x<-0.06||x>1.06)return NaN;x=mod1(x);}
+  else if(x<-0.002||x>1.002)return NaN;
+  x=clamp(x,0,1);return sc.inv(x);
+}
+function sig(v,n=4){if(!isFinite(v))return '—';if(v===0)return '0';const a=Math.abs(v);if(a>=10000)return String(Math.round(v));return String(+v.toPrecision(n));}
+function fmtRead(n,v){
+  if(!isFinite(v))return '—';
+  if(n==='S'||n==='T')return v.toFixed(v<10?2:1)+'°';
+  if(n==='ST')return v.toFixed(3)+'°';
+  if(n==='L')return v.toFixed(3).replace(/^0/,'');
+  return sig(v);
+}
+function on(n,v,tol=.0025){let d=posUnder(n)-SC[n].f(v);if(SC[n].folded)d-=Math.round(d);return Math.abs(d)<=tol;}
+
+/* =====================================================================
+   RENDER LOOP, ANIMATION, FLIP
+   The flip is a roll about the rule's long axis. flipP runs 0→1; the face
+   swaps at the halfway point. It can be driven by a swipe or animated.
+   ===================================================================== */
+let pending=false,anim=null,flipA=null;
+let flipP=0,flipDir=1,flipFrom=null;
+function invalidate(){if(!pending){pending=true;requestAnimationFrame(frame);}}
+function setFlipP(p){
+  flipP=clamp(p,0,1);
+  const other=flipFrom==='front'?'back':'front',f=flipP>=.5?other:flipFrom;
+  if(f&&f!==st.face){st.face=f;updateFlipLbl();}
+  flipK=Math.cos(flipP*PI);
+}
+function frame(t){
+  pending=false;let more=false;
+  if(flipA){const k=clamp((t-(flipA.t0??=t))/flipA.dur,0,1),e=k<.5?2*k*k:1-((-2*k+2)**2)/2;
+    setFlipP(flipA.p0+(flipA.p1-flipA.p0)*e);
+    if(k>=1){const r=flipA.res;flipA=null;flipP=0;flipK=1;flipFrom=null;save();checkTry();r();}else more=true;}
+  if(anim){const k=clamp((t-(anim.t0??=t))/anim.dur,0,1),e=k<.5?4*k*k*k:1-((-2*k+2)**3)/2;
+    if(anim.to.xc!==undefined)st.xc=anim.fx+(anim.to.xc-anim.fx)*e;
+    if(anim.to.s!==undefined)st.s=anim.fs+(anim.to.s-anim.fs)*e;
+    if(k>=1){const r=anim.res;anim=null;r();checkTry();}else more=true;}
+  draw();if(more)invalidate();
+}
+const LIM={xc:[-0.07,1.07],s:[-1.02,1.02]};
+function flipTo(face,dir=1){
+  if(face===st.face||flipA||flipFrom)return Promise.resolve();
+  if(REDUCED){st.face=face;updateFlipLbl();invalidate();save();return Promise.resolve();}
+  flipFrom=st.face;flipDir=dir;
+  return new Promise(res=>{flipA={p0:0,p1:1,dur:520,res};invalidate();});
+}
+function settleFlip(p1){return new Promise(res=>{flipA={p0:flipP,p1,dur:Math.max(140,560*Math.abs(p1-flipP)),res};invalidate();});}
+async function goTo(s,speed=1){
+  if(!s)return;
+  if(s.face&&s.face!==st.face)await flipTo(s.face);
+  const to={};if(s.xc!==undefined)to.xc=clamp(s.xc,LIM.xc[0],LIM.xc[1]);if(s.s!==undefined)to.s=clamp(s.s,LIM.s[0],LIM.s[1]);
+  const d=Math.max(Math.abs((to.xc??st.xc)-st.xc),Math.abs((to.s??st.s)-st.s));
+  if(d<1e-6){invalidate();return;}
+  const dur=REDUCED?1:clamp(380+d*1000,420,1300)/speed;
+  return new Promise(res=>{if(anim)anim.res();anim={fx:st.xc,fs:st.s,to,dur,res};invalidate();});
+}
+function stopMotion(){if(anim){const r=anim.res;anim=null;r();}}
+function updateFlipLbl(){$('#flipTxt').textContent=' Show '+(st.face==='front'?'back':'front');}
+
+/* =====================================================================
+   TOUCH
+   · drag sideways on the slide (anywhere, glass included) → slide moves
+   · drag sideways on either fixed strip → the whole rule moves under the cursor
+   · speed-sensitive: slow = fine (about 1/3 of finger travel), normal = 1:1,
+     fast = up to 3.5× so one stroke crosses the rule
+   · swipe up or down → the rule rolls over in that direction, following the finger
+   · pinch → zoom
+   ===================================================================== */
+const ptrs=new Map();let drag=null,pinch=null;
+const isUp=()=>document.body.classList.contains('upright');
+const rotated=()=>matchMedia('(orientation: portrait)').matches&&!isUp();
+function local(e){
+  if(rotated()){const sg=$('#stage');return {x:e.clientY-sg.offsetLeft,y:(innerWidth-e.clientX)-sg.offsetTop};}
+  const r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};
+}
+function gain(v,key){
+  const lo=.33,hi=key==='s'?2.2:3.5;
+  if(v<.04)return lo;
+  if(v<.3)return lo+(1-lo)*(v-.04)/.26;
+  if(v<.8)return 1;
+  return Math.min(hi,1+(v-.8)*2.2);
+}
+cv.addEventListener('pointerdown',e=>{
+  cv.setPointerCapture(e.pointerId);const p=local(e);ptrs.set(e.pointerId,p);
+  if(walking)cancelWalk();stopMotion();hideHint0();
+  if(ptrs.size===1){
+    if(flipA)return;
+    const G=geom(),key=(p.y>=G.slideTop&&p.y<=G.slideBot)?'s':'xc',now=performance.now();
+    drag={key,x0:p.x,y0:p.y,t0:now,lx:p.x,lt:now,vs:0,axis:null,samples:[[now,p.x,p.y]],span:(G.bot-G.top)*.9};
+  }else if(ptrs.size===2){
+    const [a,b]=[...ptrs.values()];pinch={d0:Math.hypot(a.x-b.x,a.y-b.y)||1,z0:Z()[st.mode]};
+    if(drag&&drag.axis==='v'&&flipFrom)settleFlip(0);
+    drag=null;invalidate();
+  }
+});
+cv.addEventListener('pointermove',e=>{
+  if(!ptrs.has(e.pointerId))return;const p=local(e);ptrs.set(e.pointerId,p);
+  if(pinch&&ptrs.size>=2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);
+    Z()[st.mode]=clamp(pinch.z0*d/pinch.d0,.5,7);invalidate();return;}
+  if(!drag)return;
+  const now=performance.now();
+  drag.samples.push([now,p.x,p.y]);while(drag.samples.length>2&&now-drag.samples[0][0]>140)drag.samples.shift();
+  if(!drag.axis){
+    const dx=p.x-drag.x0,dy=p.y-drag.y0;if(Math.hypot(dx,dy)<7)return;
+    drag.axis=(settings.flickFlip&&Math.abs(dy)>Math.abs(dx)*1.15)?'v':'h';
+    if(drag.axis==='v'){flipFrom=st.face;flipDir=dy>0?1:-1;}
+  }
+  if(drag.axis==='v'){setFlipP((p.y-drag.y0)*flipDir/drag.span);invalidate();return;}
+  const step=p.x-drag.lx,dt=Math.max(1,now-drag.lt);drag.lx=p.x;drag.lt=now;
+  drag.vs=drag.vs*.55+(Math.abs(step)/dt)*.45;
+  const d=step*gain(drag.vs,drag.key)/Lpx();
+  st[drag.key]=clamp(st[drag.key]+(drag.key==='xc'?-d:d),LIM[drag.key][0],LIM[drag.key][1]);
+  checkTry();invalidate();
+});
+function endPtr(e){
+  if(!ptrs.has(e.pointerId))return;const p=local(e);ptrs.delete(e.pointerId);
+  if(pinch){if(ptrs.size<2){pinch=null;save();}drag=null;return;}
+  if(!drag)return;
+  if(!drag.axis){if(performance.now()-drag.t0<400)tap(p);drag=null;return;}
+  if(drag.axis==='v'){
+    const s=drag.samples,a=s[0],b=s[s.length-1],vy=(b[2]-a[2])/Math.max(1,b[0]-a[0])*flipDir;
+    const go=e.type==='pointerup'&&(flipP>.2||(vy>.2&&flipP>.04));
+    drag=null;settleFlip(go?1:0);return;
+  }
+  drag=null;save();
+}
+cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',endPtr);
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('touchmove',e=>{if(e.target===cv)e.preventDefault();},{passive:false});
+let bulbT=null;
+function tap(p){
+  if(st.mode==='expert'){const b=$('#xMenu');b.classList.add('lit');clearTimeout(bulbT);bulbT=setTimeout(()=>b.classList.remove('lit'),3500);}
+  const G=geom();const r=G.rows.find(q=>p.y>=q.y&&p.y<q.y+q.h);if(!r)return;
+  const inLeft=p.x<view.sl+56, inRight=readoutsOn()&&p.x>view.w-view.sr-84;
+  const onName=Math.abs(p.x-(X(-0.04+(r.slide?st.s:0))))<40;
+  if(inLeft||inRight||onName)showInfo(r.name);
+}
+
+/* =====================================================================
+   BUBBLE, CAPTION, SHEET
+   ===================================================================== */
+const bubble=$('#bubble');let bubbleKind=null;
+function showBubble(title,html,kind){
+  bubble.innerHTML=`<button class="close" id="bClose">Less ▾</button><h3>${title}</h3>${html}`;
+  bubble.hidden=false;bubble.scrollTop=0;bubbleKind=kind;$('#bClose').onclick=hideBubble;
+  $('#moreBtn').textContent=kind==='more'?'Less':'More';
+}
+function hideBubble(){bubble.hidden=true;bubbleKind=null;$('#moreBtn').textContent='More';}
+function showInfo(n){const i=INFO[n];if(!i)return;showBubble(i[0],i[1]+`<p style="color:var(--muted);font-size:13px">Tap “Less” or anywhere on the panel to close.</p>`,'info');}
+function caption(n,t){const c=$('#caption');if(!t){c.hidden=true;return;}c.innerHTML=(n?`<span class="n">${n}</span>`:'')+t;c.hidden=false;}
+function openSheet(title,html,onOpen){$('#sheetTitle').textContent=title;$('#sheetBody').innerHTML=html;$('#sheet').hidden=false;$('#sheetBody').scrollTop=0;onOpen&&onOpen($('#sheetBody'));}
+function closeSheet(){$('#sheet').hidden=true;}
+$('#sheetClose').onclick=closeSheet;
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet();});
+let hint0T=null;function hideHint0(){const h=$('#hint0');if(!h.hidden){h.style.opacity=0;setTimeout(()=>h.hidden=true,600);settings.hint0=false;save();}}
+
+/* =====================================================================
+   LESSONS
+   ===================================================================== */
+const x=(n,v)=>SC[n].f(v);
+const near0=()=>Math.abs(st.s)<.003;
+const anyIdx=n=>on(n,1)||on(n,10);
+const LESSONS=[
+ {t:'Meet the rule',steps:[
+  {t:'Your grandfather’s slide rule',st:{face:'front',xc:.5,s:0},
+   b:'This is a working copy of the <b>K&amp;E 4081-3 Log Log Duplex Decitrig</b>: a 10-inch engineering rule with 20 scales, ten per face. Tap <b>Next</b> to step through, or <b>More</b> for background.',
+   m:`<p>Keuffel &amp; Esser of Hoboken, New Jersey made the 4081 family from 1937 into the early 1970s. It was <i>the</i> American engineering rule of its era: bridges, aircraft, power plants and plenty of houses were figured on one.</p>
+   <p><b>Log Log</b> means it has LL scales for powers and roots of any number. <b>Duplex</b> means scales on both faces, with the cursor hairline running through to both sides. <b>Decitrig</b> means the trig scales are marked in decimal degrees (30.5°) instead of degrees and minutes (30° 30′).</p>
+   <p>Your rule’s serial number, 601428, fits K&amp;E’s numbering for about 1951 or about 1962 (the counter rolled over in 1955). Its back face labels the small-angle scale <b>ST</b>; K&amp;E renamed it SRT in 1956, which points to the early 1950s. See Settings → About this rule for how to confirm.</p>`},
+  {t:'Body, slide and cursor',st:{xc:.36,s:.12},
+   b:'The top and bottom strips are the <b>body</b>. The middle strip is the <b>slide</b>. The glass window is the <b>cursor</b>; here it stays centered and the rule moves under it.',
+   m:`<ul><li><b>Drag either fixed strip</b> (top or bottom) sideways to move the whole rule under the cursor. That is the same as sliding the cursor on a real rule.</li><li><b>Drag the middle strip</b> sideways to move the slide, even under the glass.</li><li><b>Speed matters:</b> move slowly for fine adjustment (the rule moves about a third as far as your finger); move faster and it speeds up so one stroke crosses the rule.</li><li><b>Swipe up or down</b> to roll the rule over to its other face.</li><li><b>Pinch</b> to zoom in for fine readings, out to see more of the rule.</li><li><b>Tap a scale name</b> in the left margin for what it does.</li><li><b>Hold the phone upright</b> and tap the phone button for a big, close-up view of the rule.</li></ul>`},
+  {t:'The indexes',st:{xc:.02,s:0},hl:['C','D'],mk:[['C',1,'left index'],['D',1]],
+   b:'The <b>1</b> at each end of C and D is an <b>index</b>. This is the left index. Almost every operation starts by putting an index somewhere.'},
+  {t:'The right index',st:{xc:.98,s:0},hl:['C','D'],mk:[['C',10,'right index'],['D',10]],
+   b:'And this is the <b>right index</b>, also marked 1. It is the same number one decade up: 10, or 100, or 0.1.'},
+  {t:'Two faces',st:{face:'back',xc:.5,s:0},
+   b:'<b>Swipe up or down</b> on the rule (or tap <b>Show back</b>) to roll it over. The roll follows your finger. The hairline runs straight through, so a setting on one face lines up with the other. D appears on both faces for that reason.',
+   m:`<p><b>Front:</b> LL02, LL03, DF · slide CF, CIF, CI, C · D, LL3, LL2. Multiplication, division, reciprocals, π, and powers of e.</p>
+   <p><b>Back:</b> LL01, K, A · slide B, T, ST, S · D, L, LL1. Squares, cubes, logarithms, trigonometry.</p>
+   <p><b>Red</b> means “runs backwards”: inverted scales (CI, CIF), the negative-exponent LL0 scales, and the complementary angles on S and T.</p>`},
+  {t:'Try it: move the rule',st:{face:'front',s:0},try:{goal:'Drag the top or bottom strip until the hairline sits on 2 on D.',ok:()=>on('D',2,.003)},
+   b:'Drag the top or bottom strip sideways until the hairline sits on <b>2 on D</b>. Readings are on the right while you learn.'},
+  {t:'Try it: move the slide',try:{goal:'Drag the slide so C’s left index (1) lines up with the hairline.',ok:()=>on('C',1,.003)},
+   b:'Now drag the <b>slide</b> (middle strip) so <b>C’s left index</b> lines up under the hairline.'}
+ ]},
+ {t:'Reading C and D',steps:[
+  {t:'Digits, not decimals',st:{face:'front',s:0,xc:x('D',2)},hl:['D'],
+   b:'The rule shows only significant digits. The mark <b>2</b> stands for 2, 20, 0.2 or 2,000. You keep track of the decimal point yourself.',
+   m:'<p>This is the slide rule’s one big habit: do a rough estimate in your head (2.1 × 38 ≈ 80) and let the rule supply the precise digits (79.8). Lesson 15 covers it in detail.</p>'},
+  {t:'Between 1 and 2',st:{xc:x('D',1.25)},hl:['D'],
+   b:'From 1 to 2 the small numbers are tenths (1.1, 1.2 … 1.9) and each small tick is <b>0.01</b>. The hairline is on <b>1.25</b>, the medium tick between 1.2 and 1.3.',
+   m:'<p>Pinch out to see the small numbers if they are hidden. The 1–2 section takes up 30% of the scale because log 2 = 0.301.</p>'},
+  {t:'Between 2 and 4',st:{xc:x('D',2.34)},hl:['D'],
+   b:'From 2 to 4 there is no room for 0.01 ticks, so each tick is <b>0.02</b>. The hairline is on <b>2.34</b>.'},
+  {t:'Between 4 and 10',st:{xc:x('D',6.75)},hl:['D'],
+   b:'From 4 to 10 each tick is <b>0.05</b>. The hairline is on <b>6.75</b>.',
+   m:'<p>The spacing shrinks as numbers grow because equal distances mean equal <i>ratios</i>: 1 to 2 is as far as 5 to 10.</p>'},
+  {t:'Estimating between ticks',st:{xc:x('D',7.33)},hl:['D'],
+   b:'Between ticks, estimate. <b>7.33</b> sits a bit past halfway from 7.30 to 7.35. Expect three significant figures, sometimes four near the left end.',
+   m:'<p>A 10-inch rule is good to about 1 part in 1,000. That is plenty for lumber, concrete, loads and spans. It is not for money, where you need every digit.</p>'},
+  {t:'Try it',try:{goal:'Put the hairline on 3.6 on D.',ok:()=>on('D',3.6,.002)},b:'Put the hairline on <b>3.6</b> on D.'},
+  {t:'Try it',try:{goal:'Put the hairline on 1.08 on D.',ok:()=>on('D',1.08,.0015)},b:'Now <b>1.08</b> on D. Pinch to zoom if it helps.'},
+  {t:'Try it',try:{goal:'Put the hairline on 8.85 on D.',ok:()=>on('D',8.85,.0015)},b:'And <b>8.85</b> on D.'}
+ ]},
+ {t:'Multiplication',steps:[
+  {t:'Adding lengths',st:{face:'front',s:0,xc:x('D',1.5)},hl:['C','D'],
+   b:'Distances on C and D are logarithms. Sliding C along D adds two lengths, and adding logarithms multiplies numbers. Let’s do <b>2 × 3</b>.',
+   m:'<p>log(a × b) = log a + log b. William Oughtred put two log scales side by side around 1622; the idea did not change for 350 years until pocket calculators replaced it in the mid-1970s.</p>'},
+  {t:'Step 1: first number on D',st:{xc:x('D',2)},hl:['D'],mk:[['D',2]],b:'Put the hairline on the first number, <b>2 on D</b>.'},
+  {t:'Step 2: index under the hairline',st:{s:x('D',2)},hl:['C','D'],mk:[['C',1,'index']],b:'Slide <b>C’s left index</b> (the 1) under the hairline. The slide now “adds log 2” to everything.'},
+  {t:'Step 3: second number on C',st:{xc:x('D',2)+x('C',3)},hl:['C','D'],mk:[['C',3],['D',6]],b:'Move the hairline to the second number, <b>3 on C</b>. Read the answer under it on D: <b>6</b>.'},
+  {t:'Where does the decimal go?',b:'0.2 × 30 uses exactly the same setting. Estimate: 0.2 × 30 is about 6, so the answer is <b>6.0</b>. The rule gives digits; you give size.'},
+  {t:'Your turn',st:{s:0},try:{goal:'2.5 × 3.2 — leave the hairline on the answer.',ok:()=>on('D',8,.003)&&on('C',3.2,.003)},b:'<b>2.5 × 3.2</b>. Set it up and leave the hairline on 3.2 on C. The answer is on D.'},
+  {t:'Your turn',try:{goal:'1.5 × 4.5 — hairline on the answer.',ok:()=>on('D',6.75,.003)&&on('C',4.5,.003)},b:'<b>1.5 × 4.5</b>. Check your reading with the column on the right.'}
+ ]},
+ {t:'Off the end: the right index',steps:[
+  {t:'When it runs off',st:{face:'front',s:x('D',4),xc:1.03},hl:['C','D'],mk:[['C',1,'left index']],
+   b:'Try <b>4 × 5</b> the same way: left index on 4. The 5 on C now hangs past the end of D. Nothing to read.'},
+  {t:'Use the right index',st:{s:x('D',4)-1,xc:x('D',4)},hl:['C','D'],mk:[['C',10,'right index'],['D',4]],
+   b:'Instead put <b>C’s right index</b> on 4. Using the right index divides by 10, and your estimate puts it back.'},
+  {t:'Read it',st:{xc:x('D',4)-1+x('C',5)},hl:['C','D'],mk:[['C',5],['D',2]],
+   b:'Hairline to <b>5 on C</b>. D reads <b>2</b>. Estimate 4 × 5 ≈ 20, so the answer is <b>20</b>.'},
+  {t:'Shortcut: the folded scales',st:{s:x('D',4),xc:x('D',4)+x('CF',5)},hl:['CF','DF'],mk:[['CF',5],['DF',20]],
+   b:'With the <b>left</b> index on 4, look up at the folded scales: 5 on <b>CF</b> sits under <b>20 on DF</b>. No reset needed.',
+   m:'<p>CF and DF are C and D shifted by π, so their 1 is near the middle. Whatever C and D multiply, CF and DF multiply too. When C runs off the end, CF almost never does.</p>'},
+  {t:'Your turn',st:{s:0},try:{goal:'6 × 7 — hairline on the answer (D or DF).',ok:()=>(on('D',4.2,.003)&&on('C',7,.003))||(on('DF',42,.003)&&on('CF',7,.003))},
+   b:'<b>6 × 7</b>, either method. Leave the hairline on the 7 and the answer under it.'}
+ ]},
+ {t:'Division',steps:[
+  {t:'8 ÷ 2',st:{face:'front',s:0,xc:x('D',8)},hl:['D'],mk:[['D',8]],b:'Division is multiplication backwards. Hairline on the dividend, <b>8 on D</b>.'},
+  {t:'Divisor under the hairline',st:{s:x('D',8)-x('C',2)},hl:['C','D'],mk:[['C',2]],b:'Slide the divisor, <b>2 on C</b>, under the hairline.'},
+  {t:'Read under the index',st:{xc:x('D',8)-x('C',2)},hl:['C','D'],mk:[['C',1,'index'],['D',4]],b:'The answer is on D under C’s index: <b>4</b>.'},
+  {t:'3 ÷ 6',st:{xc:x('D',3),s:x('D',3)-x('C',6)},hl:['C','D'],mk:[['C',6],['D',3]],b:'<b>3 ÷ 6</b>: hairline on 3, 6 on C under it. Now the left index is off the rule…'},
+  {t:'…so use the right index',st:{xc:x('D',3)-x('C',6)+1},hl:['C','D'],mk:[['C',10,'right index'],['D',5]],b:'…so read under the <b>right index</b>: 5. The estimate (3 ÷ 6 is about a half) gives <b>0.5</b>.'},
+  {t:'Your turn',try:{goal:'7.5 ÷ 2.5 — hairline on the answer, under an index.',ok:()=>on('D',3,.003)&&anyIdx('C')},b:'<b>7.5 ÷ 2.5</b>. Finish with the hairline on C’s index and the answer under it.'}
+ ]},
+ {t:'Reciprocals: the CI scale',steps:[
+  {t:'CI is C backwards',st:{face:'front',s:0,xc:x('C',4)},hl:['C','CI'],mk:[['C',4],['CI',2.5]],
+   b:'<b>CI</b> is red and runs right to left. Each C number sits over its reciprocal on CI. Hairline on 4 on C: CI reads 2.5, so <b>1/4 = 0.25</b>.'},
+  {t:'Multiplying with CI',st:{xc:x('D',3),s:x('D',3)-x('CI',4)},hl:['CI','D'],mk:[['CI',4],['D',3]],
+   b:'3 × 4 is the same as 3 ÷ ¼. Hairline on <b>3 on D</b>, then put <b>4 on CI</b> under it…',
+   m:'<p>Dividing by a reciprocal is multiplying. The win: the answer appears under C’s index, and the slide is already set for the next factor.</p>'},
+  {t:'…read under the index',st:{xc:x('D',3)-x('CI',4)},hl:['C','D'],mk:[['C',1,'index'],['D',1.2]],b:'…and read under C’s index: <b>1.2</b>, so 3 × 4 = <b>12</b>.'},
+  {t:'Chains: 4 × 5 × 1.5',st:{xc:x('D',4),s:x('D',4)-x('CI',5)},hl:['CI','D'],mk:[['CI',5],['D',4]],
+   b:'Chains need no intermediate reading. Hairline on 4, 5 on CI under it. C’s index now stands for 20…'},
+  {t:'…then the next factor',st:{xc:x('D',4)-x('CI',5)+x('C',1.5)},hl:['C','D'],mk:[['C',1.5],['D',3]],b:'…so just move the hairline to <b>1.5 on C</b>. D reads 3, and the estimate says <b>30</b>.'},
+  {t:'Your turn',try:{goal:'2 × 2.5 × 3.2 — finish with the hairline on 3.2 on C.',ok:()=>on('D',1.6,.003)&&on('C',3.2,.003)},b:'<b>2 × 2.5 × 3.2</b>. Use CI for the second factor and finish on 3.2 on C.'}
+ ]},
+ {t:'Ratios and conversions',steps:[
+  {t:'(6 × 4) ÷ 3',st:{face:'front',xc:x('D',6),s:x('D',6)-x('C',3)},hl:['C','D'],mk:[['D',6],['C',3]],b:'For a × b ÷ c, divide first. Hairline on <b>6 on D</b>, <b>3 on C</b> under it…'},
+  {t:'…then multiply',st:{xc:x('D',6)-x('C',3)+x('C',4)},hl:['C','D'],mk:[['C',4],['D',8]],b:'…then hairline to <b>4 on C</b>. D reads <b>8</b>. One slide setting, one cursor move.'},
+  {t:'A conversion table',st:{s:x('D',2.54),xc:x('D',2.54)+x('C',3)},hl:['C','D'],mk:[['C',1,'1 in'],['C',3,'3 in'],['D',7.62,'7.62 cm']],
+   b:'Put C’s index on <b>2.54</b> (cm per inch). Now every number on C sits over its centimeter value on D: 3 in → <b>7.62 cm</b>.',
+   m:'<p>Any fixed ratio works: 3.281 ft per meter, 27 cubic feet per yard, 0.0833 ft per inch, a plan scale. Set it once and move only the hairline.</p>'},
+  {t:'Your turn',try:{goal:'6.5 in → cm. Hairline on 6.5 on C, answer on D.',ok:()=>on('D',1.651,.003)&&on('C',6.5,.003)},b:'Convert <b>6.5 inches</b> to centimeters. You will need the right index.'}
+ ]},
+ {t:'Squares and square roots',steps:[
+  {t:'A is D squared',st:{face:'back',s:0,xc:x('D',3)},hl:['A','D'],mk:[['D',3],['A',9]],
+   b:'Flip to the back. <b>A</b> is two half-size copies of D. Hairline on <b>3 on D</b>: A reads <b>9</b>.'},
+  {t:'The right half',st:{xc:x('D',7)},hl:['A','D'],mk:[['A',49]],b:'<b>7 on D</b> → <b>49</b> on A, in the right half (10–100).'},
+  {t:'Square roots: pick a half',st:{xc:x('A',20)},hl:['A','D'],mk:[['A',20]],
+   b:'For √, go from A down to D. Odd count of digits (1–9, 100–999): left half. Even count (10–99): right half. <b>√20</b>: right half → <b>4.47</b>.',
+   m:'<p>Why: 20 and 2 share digits but their roots don’t (4.47 vs 1.414). The half you choose tells the rule which. For 0.002, pair digits from the decimal point: 0.00|20 → 20 → 0.0447.</p>'},
+  {t:'√2',st:{xc:x('A',2)},hl:['A','D'],mk:[['A',2]],b:'<b>√2</b>: 2 in the left half → <b>1.414</b>.'},
+  {t:'Your turn',try:{goal:'√50 — hairline on 50 on A.',ok:()=>on('A',50,.002)},b:'Find <b>√50</b>. Answer: 7.07.'},
+  {t:'Your turn',try:{goal:'1.6² — hairline on 1.6 on D.',ok:()=>on('D',1.6,.002)},b:'Find <b>1.6²</b> on A.'}
+ ]},
+ {t:'Cubes and cube roots',steps:[
+  {t:'K is D cubed',st:{face:'back',s:0,xc:x('D',2)},hl:['K','D'],mk:[['D',2],['K',8]],b:'<b>K</b> is three third-size copies of D. Hairline on <b>2 on D</b>: K reads <b>8</b>.'},
+  {t:'Cube roots: pick a third',st:{xc:x('K',27)},hl:['K','D'],mk:[['K',27]],
+   b:'Group digits in threes from the decimal point. One digit in the lead group: left third. Two: middle. Three: right. <b>∛27</b>: middle → <b>3</b>.'},
+  {t:'∛500',st:{xc:x('K',500)},hl:['K','D'],mk:[['K',500]],b:'<b>∛500</b>: three digits, right third → <b>7.94</b>.',
+   m:'<p>Useful for sizing: a cube holding 500 ft³ is 7.94 ft on a side.</p>'},
+  {t:'Your turn',try:{goal:'∛64 — hairline on 64 on K.',ok:()=>on('K',64,.002)},b:'Find <b>∛64</b>.'}
+ ]},
+ {t:'Folded scales and π',steps:[
+  {t:'DF = π × D',st:{face:'front',s:0,xc:x('D',2)},hl:['D','DF'],mk:[['D',2],['DF',6.283]],
+   b:'Every number on D sits under π times itself on <b>DF</b>. Hairline on 2: DF reads <b>6.28</b>. A 2-ft circle is 6.28 ft around.'},
+  {t:'Circumference to diameter',st:{xc:x('DF',10)},hl:['D','DF'],mk:[['DF',10]],b:'Backwards: a <b>10-ft</b> circumference on DF → <b>3.18 ft</b> diameter on D.'},
+  {t:'Multiplying on folded scales',st:{s:x('D',2.5),xc:x('D',2.5)+x('CF',6)},hl:['CF','DF','C','D'],mk:[['CF',6],['DF',15]],
+   b:'CF/DF multiply just like C/D. With C’s index on 2.5, 6 on CF sits over <b>15</b> on DF. Here C would have run off the end.'},
+  {t:'Your turn',st:{s:0},try:{goal:'Circumference of a 3.5-ft circle (read DF).',ok:()=>on('D',3.5,.003)},b:'What is the circumference of a <b>3.5-ft</b> circle? Read it on DF.'}
+ ]},
+ {t:'Logarithms',steps:[
+  {t:'The L scale',st:{face:'back',s:0,xc:x('D',2)},hl:['D','L'],mk:[['L',.301]],b:'<b>L</b> is evenly divided. Hairline on <b>2 on D</b>: L reads <b>.301</b>, so log 2 = 0.301.'},
+  {t:'The whole-number part',st:{xc:x('D',3)},hl:['D','L'],mk:[['L',.477]],
+   b:'L gives only the decimal part. Add the whole part by counting: 300 has 3 digits, so <b>log 300 = 2.477</b>.',
+   m:'<p>The whole-number part (characteristic) is one less than the digits before the decimal point. For 0.03 it is −2, so log 0.03 = −2 + 0.477 = −1.523.</p>'},
+  {t:'Antilogs',st:{xc:.75},hl:['D','L'],mk:[['D',5.623]],b:'Backwards: <b>10^0.75</b>. Hairline on .75 on L, D reads <b>5.62</b>.'},
+  {t:'Your turn',try:{goal:'log 5 — hairline on 5 on D, read L.',ok:()=>on('D',5,.002)},b:'Find <b>log 5</b>.'}
+ ]},
+ {t:'Sines and cosines',steps:[
+  {t:'The S scale',st:{face:'back',s:0,xc:x('S',30)},hl:['S','D'],mk:[['S',30]],
+   b:'Keep the slide centered. <b>S</b> runs from 5.7° to 90°, and D gives the sine as 0.1 to 1.0. <b>sin 30° = 0.5</b>.',
+   m:'<p>Because the trig scales sit on the slide, they line up with D only when the slide is centered (indexes matched). On a real rule you would check both ends.</p><p>These are decimal degrees: 30.5° rather than 30° 30′.</p>'},
+  {t:'Cosines: the red numbers',hl:['S','D'],b:'Every S mark also carries a red number, its complement. <b>cos 60° = sin 30°</b>, so red 60 reads the same 0.5.'},
+  {t:'sin 10°',st:{xc:x('S',10)},hl:['S','D'],mk:[['S',10]],b:'<b>sin 10° = 0.174</b>. Remember D here means 0.1 to 1.0.'},
+  {t:'Small angles: ST',st:{xc:x('ST',2)},hl:['ST','D'],mk:[['ST',2]],
+   b:'Below 5.7° sine and tangent are nearly equal. <b>ST</b> covers 0.57° to 5.7° (0.01 to 0.1 on D). <b>sin 2° ≈ 0.0349</b>.',
+   m:'<p>ST is also a degrees-to-radians converter: 2° = 0.0349 rad.</p>'},
+  {t:'Multiplying by a sine',st:{s:x('D',8)-1,xc:x('D',8)},hl:['S','D'],mk:[['S',90,'90°'],['D',8]],
+   b:'An <b>8-ft</b> ramp at <b>30°</b> rises 8 × sin 30°. Put S’s 90° (its right index) on 8 on D…'},
+  {t:'…then the angle',st:{xc:x('D',8)-1+x('S',30)},hl:['S','D'],mk:[['S',30],['D',4]],b:'…and move the hairline to <b>30 on S</b>. D reads <b>4 ft</b>.'},
+  {t:'Your turn',st:{s:0},try:{goal:'sin 45° — slide centered, read D.',ok:()=>on('S',45,.002)&&near0()},b:'Find <b>sin 45°</b> (slide centered).'}
+ ]},
+ {t:'Tangents and roof pitch',steps:[
+  {t:'The T scale',st:{face:'back',s:0,xc:x('T',20)},hl:['T','D'],mk:[['T',20]],b:'<b>T</b> gives tangents from 5.7° to 45° as 0.1 to 1.0 on D. <b>tan 20° = 0.364</b>.'},
+  {t:'Roof pitch to angle',st:{xc:x('D',5)},hl:['T','D'],mk:[['D',5]],
+   b:'A <b>6-in-12</b> roof rises 6 in 12, so tan θ = 0.5. Hairline on 5 on D: T reads <b>26.6°</b>.',
+   m:'<p>Rise ÷ run is the tangent. Set the ratio on D (as tenths), read the angle on T. 4-in-12 = 0.333 → 18.4°; 8-in-12 = 0.667 → 33.7°; 12-in-12 → 45°.</p>'},
+  {t:'4-in-12',st:{xc:x('D',3.333)},hl:['T','D'],b:'<b>4-in-12</b>: 0.333 → <b>18.4°</b>.'},
+  {t:'Above 45°',st:{xc:x('T',20)},hl:['T','D'],mk:[['T',20,'red 70']],
+   b:'Red T numbers are complements. <b>tan 70° = 1 ÷ tan 20°</b>. Put the hairline on red 70…'},
+  {t:'…and flip',st:{face:'front'},hl:['CI'],
+   b:'…and flip. With the slide centered, <b>CI</b> on the front reads <b>2.75</b> under the same hairline. That is the duplex design at work.'},
+  {t:'Your turn',st:{face:'back',s:0},try:{goal:'What angle is a 9-in-12 roof? (slide centered)',ok:()=>on('D',7.5,.002)&&near0()},b:'What angle is a <b>9-in-12</b> roof? Set 0.75 on D and read T.'}
+ ]},
+ {t:'Log-log: powers of e and ln',steps:[
+  {t:'eˣ on the LL scales',st:{face:'front',s:0,xc:x('D',2)},hl:['D','LL3','LL2'],mk:[['LL3',7.389],['LL2',1.2214]],
+   b:'The LL scales show eˣ for x on D. Hairline on 2: <b>LL3</b> reads 7.39 (e²) and <b>LL2</b> reads 1.221 (e^0.2).'},
+  {t:'Which scale',hl:['LL02','LL03'],b:'LL3: x from 1 to 10. LL2: 0.1 to 1. LL1 (back): 0.01 to 0.1. The red LL0 scales give e^−x: <b>LL03</b> reads 0.135 = e^−2.',
+   m:'<p>Each LL scale is a decade of exponents. That is why the LL scales, unlike C and D, give a definite answer with no decimal guessing: 7.39 really is 7.39.</p>'},
+  {t:'Natural logs',st:{xc:x('LL3',50)},hl:['LL3','D'],mk:[['LL3',50]],b:'Backwards: hairline on <b>50 on LL3</b>, D reads 3.91. <b>ln 50 = 3.91</b>.'},
+  {t:'Powers: 1.5^3.2',st:{xc:x('LL2',1.5),s:x('LL2',1.5)-1},hl:['LL2','C'],mk:[['LL2',1.5],['C',10,'right index']],
+   b:'<b>1.5^3.2</b>: hairline on 1.5 on LL2, then C’s <b>right</b> index under it…'},
+  {t:'…hairline to the exponent',st:{xc:x('LL2',1.5)-1+x('C',3.2)},hl:['LL3','C'],mk:[['C',3.2],['LL3',3.66]],
+   b:'…hairline to <b>3.2 on C</b>. Using the right index moves the answer down one scale, to LL3: <b>3.66</b>.'},
+  {t:'Interest: 1.05^10',st:{face:'back',s:0,xc:x('LL1',1.05)},hl:['LL1'],mk:[['LL1',1.05]],
+   b:'Ten years at 5%: hairline on <b>1.05 on LL1</b> (back). Raising to the 10th power moves exactly one scale down…'},
+  {t:'…flip to read',st:{face:'front'},hl:['LL2'],b:'…so flip: <b>LL2</b> under the same hairline reads <b>1.629</b>. $100,000 at 5% for 10 years grows to about $163,000.'},
+  {t:'Your turn',st:{s:0},try:{goal:'2⁵ — finish with the hairline on 5 on C.',ok:()=>on('LL3',32,.003)&&on('C',5,.003)},b:'<b>2⁵</b>. Find 2 on LL2, set an index, move to 5 on C, read LL3.'}
+ ]},
+ {t:'The decimal point',steps:[
+  {t:'Round and estimate',st:{face:'front',s:x('D',3.84),xc:x('D',3.84)+x('C',2.17)},hl:['C','D'],mk:[['D',8.333]],
+   b:'<b>38.4 × 0.0217</b>: round to 40 × 0.02 = 0.8. The rule reads 833, so the answer is <b>0.833</b>.',
+   m:'<p>Do the estimate first, every time. It catches the most common mistake: right digits, wrong size.</p>'},
+  {t:'Scientific notation',b:'For hard cases write numbers as a × 10ⁿ: 0.0217 = 2.17 × 10⁻². Multiply the a’s on the rule, add the exponents in your head.',
+   m:'<p>38.4 × 0.0217 = 3.84 × 10¹ × 2.17 × 10⁻² = 8.33 × 10⁻¹ = 0.833. If the product of the a’s passes 10 (you used the right index), add one more to the exponent.</p>'},
+  {t:'You’re ready',b:'That covers every scale on the rule. Try <b>Practice</b> for problems with hints and walkthroughs, then <b>Test</b> yourself, then put it away and use <b>Expert</b>.'}
+ ]}
+];
+
+let walking=false;
+function curLesson(){return LESSONS[clamp(prog.lesson,0,LESSONS.length-1)];}
+function stepState(){const l=curLesson();return l.steps[clamp(prog.step,0,l.steps.length-1)];}
+function stepKey(){return prog.lesson+'.'+prog.step;}
+function renderStep(animate=true){
+  const l=curLesson(),s=stepState();
+  $('#lessonBtn').textContent=`${prog.lesson+1}. ${l.t}`;
+  $('#stepNo').textContent=`${prog.step+1}/${l.steps.length}`;
+  $('#stepText').innerHTML=s.b;$('#stepText').scrollTop=0;
+  hl=new Set(s.hl||[]);marks=s.mk||[];
+  $('#moreBtn').disabled=!s.m;hideBubble();
+  $('#prevBtn').disabled=prog.lesson===0&&prog.step===0;
+  $('#nextBtn').textContent=(prog.step===l.steps.length-1)?(prog.lesson<LESSONS.length-1?'Next lesson ›':'Finish'):'Next ›';
+  const chip=$('#tryChip');
+  if(s.try){chip.hidden=false;const ok=prog.done[stepKey()];chip.className='chip '+(ok?'done':'try');chip.textContent=ok?'✓ Done':'Your turn';$('#showBtn').disabled=false;}
+  else{chip.hidden=true;$('#showBtn').disabled=!s.st;}
+  if(animate&&s.st&&!s.try)goTo(evalSt(s.st));
+  else if(s.try&&s.st)goTo(evalSt(s.st));
+  invalidate();save();
+}
+const evalSt=v=>typeof v==='function'?v():v;
+function checkTry(){
+  if(st.mode!=='learn')return;const s=stepState();if(!s.try||prog.done[stepKey()])return;
+  if(s.try.ok()){prog.done[stepKey()]=true;const chip=$('#tryChip');chip.className='chip done';chip.textContent='✓ Done';save();}
+}
+function nextStep(){const l=curLesson();if(prog.step<l.steps.length-1)prog.step++;else if(prog.lesson<LESSONS.length-1){prog.lesson++;prog.step=0;}else{openLessons();return;}renderStep();}
+function prevStep(){if(prog.step>0)prog.step--;else if(prog.lesson>0){prog.lesson--;prog.step=curLesson().steps.length-1;}renderStep();}
+async function showMe(){
+  const s=stepState();
+  if(s.try){ // solve it: find the intended answer by trying the step's ok() target via a solver table
+    const sol=TRY_SOL[stepKey()];if(sol){walking=true;for(const p of sol){if(!walking)break;await goTo(p);await sleep(350);}walking=false;checkTry();}
+  }else if(s.st){await goTo(evalSt(s.st));}
+}
+function cancelWalk(){walking=false;caption(0,'');}
+// solutions for the "Your turn" steps, keyed lesson.step
+const TRY_SOL={
+ '0.5':[{face:'front',xc:x('D',2)}],
+ '0.6':[{s:st.xc}],
+ '1.5':[{face:'front',xc:x('D',3.6)}],'1.6':[{face:'front',xc:x('D',1.08)}],'1.7':[{face:'front',xc:x('D',8.85)}],
+ '2.5':[{face:'front',xc:x('D',2.5)},{s:x('D',2.5)},{xc:x('D',8)}],
+ '2.6':[{face:'front',xc:x('D',1.5)},{s:x('D',1.5)},{xc:x('D',6.75)}],
+ '3.4':[{face:'front',xc:x('D',6)},{s:x('D',6)-1},{xc:x('D',6)-1+x('C',7)}],
+ '4.5':[{face:'front',xc:x('D',7.5)},{s:x('D',7.5)-x('C',2.5)},{xc:x('D',7.5)-x('C',2.5)}],
+ '5.5':[{face:'front',xc:x('D',2)},{s:x('D',2)-x('CI',2.5)},{xc:x('D',2)-x('CI',2.5)+x('C',3.2)}],
+ '6.3':[{face:'front',xc:x('D',2.54)},{s:x('D',2.54)-1},{xc:x('D',2.54)-1+x('C',6.5)}],
+ '7.4':[{face:'back',xc:x('A',50)}],'7.5':[{face:'back',xc:x('D',1.6)}],
+ '8.3':[{face:'back',xc:x('K',64)}],
+ '9.3':[{face:'front',s:0,xc:x('D',3.5)}],
+ '10.3':[{face:'back',xc:x('D',5)}],
+ '11.6':[{face:'back',s:0,xc:x('S',45)}],
+ '12.5':[{face:'back',s:0,xc:x('D',7.5)}],
+ '13.7':[{face:'front',xc:x('LL2',2)},{s:x('LL2',2)-1},{xc:x('LL2',2)-1+x('C',5)}]
+};
+function lessonSol(){ // '0.6' depends on where the hairline is now
+  TRY_SOL['0.6']=[{s:st.xc}];
+}
+function openLessons(){
+  const html=`<div class="list">${LESSONS.map((l,i)=>{const n=l.steps.length,d=l.steps.filter((s,j)=>s.try&&prog.done[i+'.'+j]).length,t=l.steps.filter(s=>s.try).length;
+    return `<button data-l="${i}" class="${i===prog.lesson?'cur':''}"><span>${i+1}. ${l.t}</span><span class="s">${n} steps${t?` · <span class="${d===t?'tick':''}">${d}/${t} tried</span>`:''}</span></button>`;}).join('')}</div>`;
+  openSheet('Lessons',html,b=>b.querySelectorAll('[data-l]').forEach(el=>el.onclick=()=>{prog.lesson=+el.dataset.l;prog.step=0;closeSheet();setMode('learn');renderStep();}));
+}
+
+/* =====================================================================
+   PRACTICE / TEST problems
+   ===================================================================== */
+const CATS=[['mul','×'],['div','÷'],['recip','1/x'],['sq','x²'],['sqrt','√x'],['cube','x³'],['cbrt','∛x'],['sin','sin'],['cos','cos'],['tan','tan'],['log','log'],['exp','eˣ'],['ln','ln'],['pow','yˣ']];
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const rn=(a,b,d)=>{let v;do{v=+rnd(a,b).toFixed(d);}while(v<=a-1e-9||v>=b+1e-9);return v;};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const nice=v=>String(+v.toPrecision(6));
+const mant=v=>{const e=Math.floor(L10(Math.abs(v))+1e-10);return [Math.abs(v)/10**e,e];};
+const m2=()=>{let v;do{v=rn(1.1,9.9,Math.random()<.55?1:2);}while(Math.abs(v-Math.round(v))<1e-9&&Math.random()<.6);return v;};
+const GEN={
+ mul(){const a=m2(),b=m2(),ea=pick([0,0,0,1,-1]),eb=pick([0,0,0,1,-1,2]);const A=a*10**ea,B=b*10**eb;
+   const xa=L10(a),xb=L10(b),right=xa+xb>1,s=right?xa-1:xa;
+   return {q:`${nice(A)} × ${nice(B)}`,ans:A*B,hint:right?'The left index would run off the end — use C’s right index (or read CF/DF).':'C’s left index on the first number, then hairline to the second on C.',
+   steps:[{t:`Hairline on ${a} on D`,st:{face:'front',xc:xa},mk:[['D',a]],hl:['D']},
+     {t:`C’s ${right?'right':'left'} index under the hairline`,st:{s},mk:[['C',right?10:1]],hl:['C','D']},
+     {t:`Hairline to ${b} on C → D reads ${sig(mant(a*b)[0])}`,st:{xc:s+xb},mk:[['C',b],['D',mant(a*b)[0]]],hl:['C','D']}]};},
+ div(){const a=m2(),b=m2(),ea=pick([0,0,1,2,-1]),eb=pick([0,0,0,1,-1]);const A=a*10**ea,B=b*10**eb;
+   const xa=L10(a),xb=L10(b),s=xa-xb,xr=s>=0?s:s+1;
+   return {q:`${nice(A)} ÷ ${nice(B)}`,ans:A/B,hint:'Hairline on the dividend (D), divisor on C under it, read D under C’s index.',
+   steps:[{t:`Hairline on ${a} on D`,st:{face:'front',xc:xa},mk:[['D',a]],hl:['D']},
+     {t:`${b} on C under the hairline`,st:{s},mk:[['C',b]],hl:['C','D']},
+     {t:`Read D under C’s ${s>=0?'left':'right'} index → ${sig(10**xr)}`,st:{xc:xr},mk:[['C',s>=0?1:10],['D',10**xr]],hl:['C','D']}]};},
+ recip(){const a=m2(),e=pick([0,0,1,-1]);const A=a*10**e;
+   return {q:`1 ÷ ${nice(A)}`,ans:1/A,hint:'Hairline on the number on C; read CI under the same hairline.',
+   steps:[{t:'Center the slide',st:{face:'front',s:0}},{t:`Hairline on ${a} on C → CI reads ${sig(10/a)}`,st:{xc:L10(a)},mk:[['C',a],['CI',10/a]],hl:['C','CI']}]};},
+ sq(){const a=rn(1.1,9.9,2),e=pick([0,0,0,1,-1]);const A=a*10**e;
+   return {q:`${nice(A)}²`,ans:A*A,hint:'Back face: hairline on the number on D, read A.',
+   steps:[{t:`Flip to the back, hairline on ${a} on D`,st:{face:'back',xc:L10(a)},mk:[['D',a]],hl:['D','A']},{t:`A reads ${sig(a*a)}`,mk:[['A',a*a]],hl:['D','A']}]};},
+ sqrt(){const n=pick([()=>rn(1.1,9.9,1),()=>rn(11,99,0),()=>rn(11,99,1),()=>rn(110,990,0)])();
+   const e=Math.floor(L10(n)),x=(L10(n)-(e%2===0?e:e-1))/2,half=e%2===0?'left':'right';
+   return {q:`√${nice(n)}`,ans:Math.sqrt(n),hint:`Back face. ${String(Math.floor(n)).length} digit${Math.floor(n)>=10?'s':''} before the point → ${half} half of A.`,
+   steps:[{t:`Flip, hairline on ${nice(n)} in the ${half} half of A`,st:{face:'back',xc:x},hl:['A','D']},{t:`D reads ${sig(10**x)}`,mk:[['D',10**x]],hl:['A','D']}]};},
+ cube(){const a=rn(1.1,9.9,1);
+   return {q:`${nice(a)}³`,ans:a**3,hint:'Back face: hairline on the number on D, read K.',
+   steps:[{t:`Flip, hairline on ${a} on D`,st:{face:'back',xc:L10(a)},mk:[['D',a]],hl:['D','K']},{t:`K reads ${sig(a**3)}`,hl:['D','K']}]};},
+ cbrt(){const e=pick([0,1,2]);let n=rn(1.1,9.9,1)*10**e;n=e?Math.round(n):n;const third=['left','middle','right'][Math.floor(L10(n))];
+   return {q:`∛${nice(n)}`,ans:Math.cbrt(n),hint:`Back face. ${String(Math.floor(n)).length}-digit group → ${third} third of K.`,
+   steps:[{t:`Flip, hairline on ${nice(n)} in the ${third} third of K`,st:{face:'back',xc:L10(n)/3},hl:['K','D']},{t:`D reads ${sig(Math.cbrt(n))}`,mk:[['D',Math.cbrt(n)]],hl:['K','D']}]};},
+ sin(){const t=pick([()=>rn(6,85,0),()=>rn(6,60,1)])();
+   return {q:`sin ${nice(t)}°`,ans:Math.sin(t*DEG),hint:'Back face, slide centered: hairline on the angle on S, read D as 0.1–1.0.',
+   steps:[{t:'Flip and center the slide',st:{face:'back',s:0}},{t:`Hairline on ${nice(t)} on S → D reads ${sig(10*Math.sin(t*DEG))}`,st:{xc:x('S',t)},mk:[['S',t]],hl:['S','D']}]};},
+ cos(){const t=rn(5,80,0);
+   return {q:`cos ${t}°`,ans:Math.cos(t*DEG),hint:'Back face, slide centered: find the angle among the red numbers on S, read D.',
+   steps:[{t:'Flip and center the slide',st:{face:'back',s:0}},{t:`Hairline on red ${t} on S (black ${90-t}) → D reads ${sig(10*Math.cos(t*DEG))}`,st:{xc:x('S',90-t)},mk:[['S',90-t]],hl:['S','D']}]};},
+ tan(){const big=Math.random()<.3,t=big?rn(46,80,0):rn(6,44,0);
+   if(!big)return {q:`tan ${t}°`,ans:Math.tan(t*DEG),hint:'Back face, slide centered: hairline on the angle on T, read D as 0.1–1.0.',
+     steps:[{t:'Flip and center the slide',st:{face:'back',s:0}},{t:`Hairline on ${t} on T → D reads ${sig(10*Math.tan(t*DEG))}`,st:{xc:x('T',t)},mk:[['T',t]],hl:['T','D']}]};
+   return {q:`tan ${t}°`,ans:Math.tan(t*DEG),hint:'Above 45°: hairline on red angle on T, then flip and read CI (slide centered).',
+     steps:[{t:'Flip and center the slide',st:{face:'back',s:0}},{t:`Hairline on red ${t} on T (black ${90-t})`,st:{xc:x('T',90-t)},mk:[['T',90-t]],hl:['T']},{t:`Flip to the front → CI reads ${sig(Math.tan(t*DEG))}`,st:{face:'front'},hl:['CI']}]};},
+ log(){const a=rn(1.1,9.9,2),e=pick([0,0,1,2,3,-1]);const n=a*10**e;
+   return {q:`log ${nice(n)}`,ans:L10(n),hint:`Back face: hairline on ${a} on D, read L, then add ${e} for the digits.`,
+   steps:[{t:`Flip, hairline on ${a} on D`,st:{face:'back',xc:L10(a)},mk:[['D',a]],hl:['D','L']},{t:`L reads ${L10(a).toFixed(3).slice(1)}; add ${e} → ${(e+L10(a)).toFixed(3)}`,mk:[['L',L10(a)]],hl:['D','L']}]};},
+ exp(){const k=pick(['LL3','LL3','LL2','LL2','LL1','LL03','LL02']);let v,face='front';
+   if(k==='LL3')v=rn(1.1,9.5,1);else if(k==='LL2')v=rn(.11,.99,2);else if(k==='LL1'){v=rn(.011,.099,3);face='back';}else if(k==='LL03')v=-rn(1.1,6,1);else v=-rn(.11,.95,2);
+   const xm=mod1(L10(Math.abs(v))+1e-12);
+   return {q:`e^${nice(v)}`,ans:Math.exp(v),hint:`Hairline on ${sig(10**xm)} on D, read ${k}${face==='back'?' (back face)':''}.`,
+   steps:[{t:`${face==='back'?'Flip, h':'H'}airline on ${sig(10**xm)} on D`,st:{face,xc:xm},mk:[['D',10**xm]],hl:['D',k]},{t:`${k} reads ${sig(Math.exp(v))}`,mk:[[k,Math.exp(v)]],hl:['D',k]}]};},
+ ln(){const k=Math.random()<.5?'LL2':'LL3';const v=k==='LL2'?rn(1.12,2.7,2):pick([()=>rn(3,9.9,1),()=>rn(10,99,0),()=>rn(100,900,0)])();
+   const xx=x(k,v);
+   return {q:`ln ${nice(v)}`,ans:LN(v),hint:`Hairline on ${nice(v)} on ${k}, read D (${k==='LL2'?'0.1–1.0':'1–10'}).`,
+   steps:[{t:`Hairline on ${nice(v)} on ${k}`,st:{face:'front',xc:xx},mk:[[k,v]],hl:[k,'D']},{t:`D reads ${sig(10**xx)} → ${sig(LN(v))}`,mk:[['D',10**xx]],hl:[k,'D']}]};},
+ pow(){let y,p,q;do{y=rn(1.15,6,Math.random()<.5?1:2);p=rn(1.2,4.5,1);q=p*LN(y);}while(LN(y)<.105||q<.11||q>9.5);
+   const ky=LN(y)<1?'LL2':'LL3',kr=q<1?'LL2':'LL3',xy=x(ky,y),right=xy+L10(p)>1,s=right?xy-1:xy;
+   return {q:`${nice(y)}^${nice(p)}`,ans:y**p,hint:`Hairline on ${nice(y)} on ${ky}, C’s index under it, hairline to ${p} on C, read the LL scale.`,
+   steps:[{t:`Hairline on ${nice(y)} on ${ky}`,st:{face:'front',xc:xy},mk:[[ky,y]],hl:[ky]},
+     {t:`C’s ${right?'right':'left'} index under the hairline`,st:{s},mk:[['C',right?10:1]],hl:['C',ky]},
+     {t:`Hairline to ${p} on C → ${kr} reads ${sig(y**p)}`,st:{xc:s+L10(p)},mk:[['C',p],[kr,y**p]],hl:['C',kr]}]};}
+};
+function grade(p,val){
+  if(!isFinite(val))return null;let err,tol;
+  if(p.cat==='log'){err=Math.abs(val-p.ans);tol=.004;}
+  else if(p.cat==='exp'||p.cat==='pow'){err=val>0?Math.abs(LN(val/p.ans)):Infinity;tol=.006*Math.abs(LN(p.ans))+.0006;}
+  else{err=Math.abs(val-p.ans)/Math.abs(p.ans);tol=.006;}
+  return {g:err<=tol/2?'excellent':err<=tol?'good':'miss',err,tol};
+}
+function newProblem(){const c=pick(cats);const p=GEN[c]();p.cat=c;return p;}
+
+let prob=null,entry='',answered=false;
+const quiz={n:0,list:[],t0:0,timer:null,active:false};
+function setEntry(v){entry=v;$('#qAns').textContent=entry.replace('-','−');}
+function buildKeypad(){
+  const keys=['1','2','3','4','5','6','7','8','9','0','.','−','⌫'];
+  $('#keypad').innerHTML=keys.map(k=>`<button data-k="${k}" aria-label="${k==='⌫'?'Delete':k}">${k}</button>`).join('');
+  $('#keypad').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;
+    if(answered&&st.mode==='practice'){newPractice();}
+    if(k==='⌫')setEntry(entry.slice(0,-1));
+    else if(k==='−')setEntry(entry.startsWith('-')?entry.slice(1):'-'+entry);
+    else if(k==='.'){if(!entry.includes('.'))setEntry(entry+(entry===''||entry==='-'?'0.':'.'));}
+    else if(entry.replace(/[-.]/g,'').length<9)setEntry(entry+k);};
+}
+function fb(t,cls){const f=$('#qFb');f.textContent=t;f.className='fb '+(cls||'');}
+function newPractice(){
+  cancelWalk();prob=newProblem();answered=false;setEntry('');fb('','');
+  $('#qText').textContent=prob.q+' =';hl=new Set();marks=[];
+  $('#qCheck').textContent='Check';invalidate();
+}
+function checkPractice(){
+  if(answered){newPractice();return;}
+  const v=parseFloat(entry);const r=grade(prob,v);
+  if(!r){fb('Enter a number first','info');return;}
+  const pct=(prob.cat==='log')?`±${r.err.toFixed(3)}`:`${(r.err*100).toFixed(2)}% off`;
+  if(r.g==='miss'){fb(`Not quite — ${sig(prob.ans)}. Tap Show me.`,'miss');}
+  else{fb(`${r.g==='excellent'?'Excellent':'Good'} — ${sig(prob.ans)} (${pct})`,'ok');}
+  answered=true;$('#qCheck').textContent='Next ›';
+}
+async function walk(steps){
+  walking=true;hideBubble();
+  for(let i=0;i<steps.length&&walking;i++){
+    const s=steps[i];caption(`${i+1}/${steps.length}`,s.t);hl=new Set(s.hl||[]);marks=s.mk||[];invalidate();
+    if(s.st)await goTo(s.st,.9);if(!walking)break;await sleep(REDUCED?900:1500);
+  }
+  if(walking){walking=false;setTimeout(()=>{if(!walking)caption(0,'');},2500);}
+}
+/* test */
+function startTest(){
+  closeSheet();quiz.list=[];quiz.n=0;quiz.active=true;quiz.t0=performance.now();
+  clearInterval(quiz.timer);quiz.timer=setInterval(updMeta,500);nextTest();
+}
+function updMeta(){if(!quiz.active)return;const s=Math.floor((performance.now()-quiz.t0)/1000);$('#tMeta').textContent=`${Math.min(quiz.n+1,10)}/10 · ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;}
+function nextTest(){
+  if(quiz.n>=10){finishTest();return;}
+  prob=newProblem();answered=false;setEntry('');fb('','');
+  $('#qText').textContent=prob.q+' =';hl=new Set();marks=[];updMeta();invalidate();
+}
+function submitTest(skip){
+  if(!quiz.active){openTestStart();return;}if(answered)return;
+  const v=skip?NaN:parseFloat(entry);const r=grade(prob,v);
+  if(!skip&&!r){fb('Enter a number, or Skip','info');return;}
+  const g=r?r.g:'miss';answered=true;
+  quiz.list.push({q:prob.q,you:skip?'—':entry.replace('-','−'),ans:sig(prob.ans),g});
+  fb(g==='miss'?`✗ ${sig(prob.ans)}`:`✓ ${g==='excellent'?'Excellent':'Good'}`,g==='miss'?'miss':'ok');
+  quiz.n++;setTimeout(nextTest,g==='miss'?1600:900);
+}
+function finishTest(){
+  quiz.active=false;clearInterval(quiz.timer);
+  const pts=quiz.list.reduce((a,r)=>a+(r.g==='excellent'?10:r.g==='good'?7:0),0);
+  const secs=Math.round((performance.now()-quiz.t0)/1000),key=cats.slice().sort().join(',');
+  const prev=best[key];const isBest=pts>0&&(!prev||pts>prev.pts||(pts===prev.pts&&secs<prev.secs));if(isBest){best[key]={pts,secs};save();}
+  $('#qText').textContent='Test complete';fb(`${pts}/100`,'ok');$('#tMeta').textContent='';
+  openSheet('Test results',`<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><span class="big">${pts}</span><span>out of 100 · ${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}${isBest?' · <b style="color:var(--ok)">personal best</b>':prev?` · best ${prev.pts}`:''}</span></div>
+   <p style="color:var(--muted);margin-top:6px">Excellent (within 0.3%) = 10 · Good (within 0.6%) = 7 · Miss = 0</p>
+   <table class="res"><tr><th>Problem</th><th>You</th><th>Answer</th><th></th></tr>${quiz.list.map(r=>`<tr><td>${r.q}</td><td>${r.you}</td><td>${r.ans}</td><td style="color:${r.g==='miss'?'var(--red)':'var(--ok)'}">${r.g==='miss'?'✗':r.g==='excellent'?'✓✓':'✓'}</td></tr>`).join('')}</table>
+   <div class="btnrow"><button class="primary" id="again">Take another test</button><button id="toPrac">Practice these topics</button></div>`,
+   b=>{b.querySelector('#again').onclick=startTest;b.querySelector('#toPrac').onclick=()=>{closeSheet();setMode('practice');};});
+}
+function openTestStart(){
+  const key=cats.slice().sort().join(','),b=best[key];
+  openSheet('Test',`<p>Ten problems from your chosen topics. Readings, hints and walkthroughs are off. Answers within 0.3% score 10, within 0.6% score 7.</p>
+   <h4>Topics</h4><div class="chips" id="tc">${CATS.map(([k,l])=>`<button data-c="${k}" aria-pressed="${cats.includes(k)}">${l}</button>`).join('')}</div>
+   <p style="margin-top:10px;color:var(--muted)" id="bestLine">${b?`Best for these topics: ${b.pts}/100`:'No score yet for these topics.'}</p>
+   <div class="btnrow"><button class="primary" id="go">Start test</button></div>`,
+   el=>{wireChips(el.querySelector('#tc'),()=>{const k=cats.slice().sort().join(','),bb=best[k];el.querySelector('#bestLine').textContent=bb?`Best for these topics: ${bb.pts}/100`:'No score yet for these topics.';});el.querySelector('#go').onclick=startTest;});
+}
+function wireChips(box,after){
+  box.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const c=b.dataset.c,on=cats.includes(c);
+    if(on&&cats.length===1)return;cats=on?cats.filter(q=>q!==c):[...cats,c];b.setAttribute('aria-pressed',String(!on));save();after&&after();});
+}
+function openTopics(){
+  if(st.mode==='test'){openTestStart();return;}
+  openSheet('Practice topics',`<p>Pick what to practice. Problems mix the topics you choose.</p><div class="chips" id="pc">${CATS.map(([k,l])=>`<button data-c="${k}" aria-pressed="${cats.includes(k)}">${l}</button>`).join('')}</div>
+  <div class="btnrow"><button class="primary" id="pgo">New problem</button></div>`,el=>{wireChips(el.querySelector('#pc'));el.querySelector('#pgo').onclick=()=>{closeSheet();newPractice();};});
+}
+
+/* =====================================================================
+   MODES + SETTINGS
+   ===================================================================== */
+function setMode(m){
+  const prevMode=st.mode;st.mode=m;document.body.dataset.mode=m;cancelWalk();hideBubble();
+  $$('.seg [data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+  const learn=m==='learn',quizM=m==='practice'||m==='test';
+  $('#ctxLearn').hidden=!learn;$('#learnUI').hidden=!learn;$('#ctxQuiz').hidden=!quizM;$('#quizRow').hidden=!quizM;
+  $('#qHint').hidden=m!=='practice';$('#qShow').hidden=m!=='practice';$('#qSkip').hidden=m!=='test';$('#topicsBtn').hidden=false;
+  $('#tMeta').hidden=m!=='test';$('#qCheck').textContent=m==='test'?'Submit':'Check';
+  if(learn)renderStep(prevMode!=='learn');
+  else{hl=new Set();marks=[];}
+  if(m==='practice')newPractice();
+  if(m==='test'){quiz.active=false;$('#qText').textContent='Ready when you are';setEntry('');fb('','');openTestStart();}
+  requestAnimationFrame(measure);save();
+}
+$$('.seg [data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+$('#xMenu').onclick=()=>setMode('learn');
+const doFlip=()=>{cancelWalk();flipTo(st.face==='front'?'back':'front').then(()=>{save();checkTry();});};
+$('#flipBtn').onclick=doFlip;
+function applyOrient(){document.body.classList.toggle('upright',!!settings.upright&&innerHeight>innerWidth);requestAnimationFrame(measure);}
+$('#orientBtn').onclick=()=>{settings.upright=!settings.upright;applyOrient();save();};
+window.addEventListener('resize',()=>applyOrient());
+$('#nextBtn').onclick=nextStep;$('#prevBtn').onclick=prevStep;
+$('#moreBtn').onclick=()=>{if(bubbleKind==='more'){hideBubble();return;}const s=stepState();if(s.m)showBubble(s.t,s.m,'more');};
+$('#showBtn').onclick=()=>{lessonSol();showMe();};
+$('#lessonBtn').onclick=openLessons;
+$('#topicsBtn').onclick=openTopics;
+$('#qCheck').onclick=()=>st.mode==='test'?submitTest(false):checkPractice();
+$('#qSkip').onclick=()=>submitTest(true);
+$('#qHint').onclick=()=>{if(prob)showBubble('Hint',`<p>${prob.hint}</p>`,'hint');};
+$('#qShow').onclick=()=>{if(prob)walk(prob.steps);};
+$('#panel').addEventListener('pointerdown',e=>{if(bubbleKind==='info'&&!e.target.closest('#moreBtn'))hideBubble();});
+document.addEventListener('keydown',e=>{
+  if(!$('#sheet').hidden){if(e.key==='Escape')closeSheet();return;}
+  if(st.mode==='practice'||st.mode==='test'){
+    if(/^[0-9]$/.test(e.key)){if(answered&&st.mode==='practice')newPractice();setEntry(entry+e.key);}
+    else if(e.key==='.'&&!entry.includes('.'))setEntry(entry+'.');
+    else if(e.key==='-')setEntry(entry.startsWith('-')?entry.slice(1):'-'+entry);
+    else if(e.key==='Backspace')setEntry(entry.slice(0,-1));
+    else if(e.key==='Enter')$('#qCheck').click();
+  }else if(st.mode==='learn'){if(e.key==='ArrowRight')nextStep();if(e.key==='ArrowLeft')prevStep();}
+  if(e.key==='f')doFlip();
+});
+function tog(id,on){return `<button class="tog" id="${id}" aria-pressed="${on}" aria-label="toggle"></button>`;}
+const ABOUT=`<p><b>JJL</b> is a working simulator of your slide rule: every scale is computed, so readings are exact.</p>
+<h4>What you have</h4>
+<p><b>Keuffel &amp; Esser 4081-3 Log Log Duplex Decitrig</b>, the 10-inch (25 cm) engineering model, mahogany core with celluloid faces and aluminum end brackets. K&amp;E made the 4081 family from 1937 into the early 1970s, and it was the most common professional slide rule in America.</p>
+<p>Your rule has 20 scales. Front: LL02, LL03, DF · [CF, CIF, CI, C] · D, LL3, LL2. Back: LL01, K, A · [B, T, ST, S] · D, L, LL1. Later versions added a DI scale (21 scales); yours has none.</p>
+<h4>When was it made?</h4>
+<p>The serial number <b>601428</b> fits K&amp;E’s numbering for <b>about 1951</b> and also <b>about 1962</b>, because their counter restarted in 1955. Clues that settle it:</p>
+<ul><li><b>ST vs SRT.</b> K&amp;E renamed the small-angle scale from ST to SRT in 1956. Your back face reads <b>ST</b>, which points to the early 1950s.</li>
+<li><b>Cursor lens.</b> Glass lenses gave way to molded plastic in 1958. Glass is heavier and rings when tapped with a fingernail.</li>
+<li><b>Fasteners.</b> Rivets on the end brackets mean pre-1958; removable hex screws mean later.</li>
+<li><b>Model number.</b> From 1962 K&amp;E renumbered everything as 68-xxxx. A rule stamped 4081-3 is older than that.</li></ul>
+<p>Taken together, an early-1950s rule is the most likely answer. Clark McCoy’s K&amp;E catalog site (mccoys-kecatalogs.com) has the serial table and production-change list, and the Oughtred Society and International Slide Rule Museum are friendly places to ask.</p>
+<h4>Care</h4><p>Wipe with a barely damp cloth; no solvents (they dissolve celluloid markings). A tiny bit of paraffin on the slide edges eases a sticky slide. Store it out of sun; the ivory yellowing is from age and is normal.</p>
+<h4>Install on your iPhone</h4><p>Open this page in Safari, tap Share, then <b>Add to Home Screen</b>. It then opens full screen with no browser bars. Turn on rotation and hold the phone sideways.</p>
+<p style="color:var(--muted);font-size:13px">This is an independent simulator built for learning; it is not affiliated with Keuffel &amp; Esser. Scale layout copied from your photos. The end gussets are drawn from measurements; better photos can replace them later.</p>`;
+function openSettings(){
+  openSheet('Settings',`
+   <div class="set"><div><div>Readings column</div><div class="d">Values under the hairline, shown on the right in Learn${''}</div></div>${tog('sR',settings.readLearn)}</div>
+   <div class="set"><div><div>Readings in Practice</div><div class="d">Off is closer to the real thing</div></div>${tog('sRP',settings.readPractice)}</div>
+   <div class="set"><div><div>Scale names in margin</div><div class="d">Keeps names visible when the rule’s ends are off screen</div></div>${tog('sN',settings.names)}</div>
+   <div class="set"><div><div>Red hairline</div><div class="d">Easier to see than the original black</div></div>${tog('sH',settings.hair==='red')}</div>
+   <div class="set"><div><div>Swipe to flip</div><div class="d">Swipe up or down on the rule to roll it over</div></div>${tog('sM',settings.flickFlip)}</div>
+   <div class="set"><div><div>Upright view</div><div class="d">When the phone is vertical, show the rule large and cropped instead of turning the app sideways</div></div>${tog('sU',settings.upright)}</div>
+   <div class="btnrow"><button id="sReset">Center the rule</button><button id="sZoom">Reset zoom</button><button id="sAbout">About this rule</button></div>`,
+   el=>{
+     const bind=(id,fn)=>{const b=el.querySelector('#'+id);b.onclick=()=>{const v=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(v));fn(v);save();invalidate();};};
+     bind('sR',v=>settings.readLearn=v);bind('sRP',v=>settings.readPractice=v);bind('sN',v=>settings.names=v);bind('sH',v=>settings.hair=v?'red':'black');bind('sM',v=>settings.flickFlip=v);bind('sU',v=>{settings.upright=v;applyOrient();});
+     el.querySelector('#sReset').onclick=()=>{closeSheet();goTo({xc:.5,s:0});};
+     el.querySelector('#sZoom').onclick=()=>{zoom={...ZOOM_DEF};save();invalidate();closeSheet();};
+     el.querySelector('#sAbout').onclick=()=>openSheet('About this rule',ABOUT);
+   });
+}
+$('#gearBtn').onclick=openSettings;
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+load();if(settings.flickFlip===undefined)settings.flickFlip=true;applyOrient();buildKeypad();makeGrain();makeBrush();loadTex();updateFlipLbl();
+new ResizeObserver(measure).observe($('#stage'));
+window.addEventListener('orientationchange',()=>setTimeout(measure,250));window.addEventListener('resize',measure);
+setMode(st.mode);
+if(settings.hint0&&st.mode!=='learn'){const h=$('#hint0');h.hidden=false;}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>invalidate());
+setTimeout(invalidate,600);
+window.__sr={st,SC,read,on,LESSONS,GEN,grade,setMode,goTo,dbg:()=>({flipP,flipFrom,flipA:!!flipA,drag:drag&&{axis:drag.axis}})};
+window.__jump=(l,s)=>{prog.lesson=l;prog.step=s;renderStep();};
+})();
+</script>
+</body>
+</html>
